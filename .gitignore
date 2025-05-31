@@ -41,3 +41,5 @@ bin/
 ### Mac OS ###
 .DS_Store
 .idea
+logback-spring.xml
+simulator.properties

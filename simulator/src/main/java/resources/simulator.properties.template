@@ -1,0 +1,26 @@
+# Fonti di eventi abilitate (separate da virgola)
+simulator.sources=login,fileaccess
+
+# Capacità della coda eventi
+simulator.queue.capacity=1000
+
+# Intervallo base di generazione eventi (ms)
+simulator.event.interval=1000
+
+# Modalità debug
+simulator.debug=false
+
+# Probabilità di eventi sospetti (0.0 - 1.0)
+simulator.suspicious.probability=0.3
+
+# Configurazioni specifiche per fonte login
+login.source.interval=2000
+login.source.suspicious.probability=0.3
+
+# Configurazioni specifiche per fonte file access
+fileaccess.source.interval=3000
+fileaccess.source.unauthorized.probability=0.4
+
+# Configurazioni logging (Logback)
+logging.level.root=INFO
+logging.level.com.unibas.ids.simulator=DEBUG
