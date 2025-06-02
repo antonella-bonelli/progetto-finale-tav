@@ -7,27 +7,27 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
-@Data
 @SuperBuilder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(of = "id")
+//@EqualsAndHashCode(of = "id")
 public abstract class Event implements Cloneable {
-    @NonNull
-    private String id;
+//    @NonNull
+//    private String id;
 
-    @Builder.Default
-    private LocalDateTime timestamp = LocalDateTime.now();
+    private LocalDateTime timestamp;
 
     @NonNull
     private EventType type;
 
+    @NonNull
     private String userId;
 
     @Builder.Default
     private EventSeverity severity = EventSeverity.LOW;
 
-    @Singular("metadatum")
+    @Builder.Default
     private Map<String, Object> metadata = new HashMap<>();
 
     @Override

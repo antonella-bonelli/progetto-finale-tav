@@ -3,6 +3,8 @@ package it.unibas.model;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
+import java.time.LocalDateTime;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
@@ -20,35 +22,33 @@ public class FileAccessEvent extends Event{
     @Builder.Default
     private boolean isAuthorized = true;
 
-    public static FileAccessEventBuilder unauthorizedAccess(String filePath) {
+    public static FileAccessEventBuilder unauthorizedAccess(String filePath, String userId) {
         return FileAccessEvent.builder()
                 .type(EventType.UNAUTHORIZED_FILE_ACCESS)
                 .filePath(filePath)
+                .userId(userId)
                 .isAuthorized(false)
+                .timestamp(LocalDateTime.now())
                 .severity(EventSeverity.MEDIUM);
     }
 
-    public static FileAccessEventBuilder normalAccess(String filePath) {
+    public static FileAccessEventBuilder normalAccess(String filePath, String userId) {
         return FileAccessEvent.builder()
                 .type(EventType.FILE_ACCESS)
                 .filePath(filePath)
+                .userId(userId)
                 .isAuthorized(true)
+                .timestamp(LocalDateTime.now())
                 .severity(EventSeverity.LOW);
     }
 
-    public static FileAccessEventBuilder sensitiveFileAccess(String filePath) {
+    public static FileAccessEventBuilder sensitiveFileAccess(String filePath, String userId) {
         return FileAccessEvent.builder()
-                .type(EventType.UNAUTHORIZED_FILE_ACCESS)
+                .type(EventType.SENSITIVE_FILE_ACCESS)
                 .filePath(filePath)
+                .userId(userId)
                 .isAuthorized(false)
+                .timestamp(LocalDateTime.now())
                 .severity(EventSeverity.HIGH);
-    }
-
-    public static FileAccessEventBuilder criticalFileAccess(String filePath) {
-        return FileAccessEvent.builder()
-                .type(EventType.UNAUTHORIZED_FILE_ACCESS)
-                .filePath(filePath)
-                .isAuthorized(false)
-                .severity(EventSeverity.CRITICAL);
     }
 }

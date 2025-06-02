@@ -10,9 +10,11 @@ subprojects {
     apply(plugin = "java")
 
     java {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(17))
+        }
     }
+
 
     repositories {
         mavenCentral()
@@ -26,6 +28,10 @@ repositories {
 dependencies {
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
+
+    implementation("org.slf4j:slf4j-api:2.0.9")
+    implementation("ch.qos.logback:logback-classic:1.4.14")
+
     testCompileOnly("org.projectlombok:lombok:1.18.30")
     testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
 
