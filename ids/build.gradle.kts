@@ -10,6 +10,7 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":simulator"))
     implementation("com.google.inject:guice:7.0.0")
 
     // Logging
