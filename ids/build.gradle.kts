@@ -11,7 +11,13 @@ repositories {
 
 dependencies {
     implementation(project(":simulator"))
+    implementation(project(":common"))
+    compileOnly("org.projectlombok:lombok:1.18.30")
+    annotationProcessor("org.projectlombok:lombok:1.18.30")
+
     implementation("com.google.inject:guice:7.0.0")
+    implementation("org.aspectj:aspectjweaver:1.9.19")
+    implementation("org.aspectj:aspectjrt:1.9.19")
 
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.6")

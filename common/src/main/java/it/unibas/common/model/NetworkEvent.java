@@ -1,9 +1,8 @@
-package it.unibas.model;
+package it.unibas.common.model;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Data

@@ -1,11 +1,11 @@
 package it.unibas;
 
-import it.unibas.generator.GeneratorConfig;
-import it.unibas.generator.RandomEventGenerator;
-import it.unibas.model.Event;
-import it.unibas.model.EventSeverity;
-import it.unibas.publisher.EventPublisher;
-import it.unibas.publisher.EventSubscriber;
+import it.unibas.simulator.generator.GeneratorConfig;
+import it.unibas.simulator.generator.RandomEventGenerator;
+import it.unibas.common.model.Event;
+import it.unibas.common.model.EventSeverity;
+import it.unibas.simulator.publisher.EventPublisher;
+import it.unibas.common.interfaces.EventSubscriber;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

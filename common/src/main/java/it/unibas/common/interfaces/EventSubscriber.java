@@ -1,6 +1,6 @@
-package it.unibas.publisher;
+package it.unibas.common.interfaces;
 
-import it.unibas.model.Event;
+import it.unibas.common.model.Event;
 
 public interface EventSubscriber {
 

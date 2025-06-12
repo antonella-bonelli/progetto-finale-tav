@@ -1,13 +1,14 @@
 package it.unibas.publisher;
 
-import it.unibas.model.Event;
-import it.unibas.model.LoginEvent;
+import it.unibas.common.interfaces.EventSubscriber;
+import it.unibas.simulator.publisher.EventPublisher;
+import it.unibas.common.model.Event;
+import it.unibas.common.model.LoginEvent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

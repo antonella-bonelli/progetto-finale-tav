@@ -1,4 +1,4 @@
-package it.unibas.generator;
+package it.unibas.simulator.generator;
 
 import lombok.Builder;
 import lombok.Data;

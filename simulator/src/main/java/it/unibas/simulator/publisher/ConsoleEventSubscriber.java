@@ -1,7 +1,10 @@
-package it.unibas.publisher;
+package it.unibas.simulator.publisher;
 
-import it.unibas.model.Event;
-import it.unibas.model.EventSeverity;
+
+
+import it.unibas.common.interfaces.EventSubscriber;
+import it.unibas.common.model.Event;
+import it.unibas.common.model.EventSeverity;
 
 import java.time.format.DateTimeFormatter;
 

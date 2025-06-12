@@ -1,6 +1,7 @@
-package it.unibas.publisher;
+package it.unibas.simulator.publisher;
 
-import it.unibas.model.Event;
+import it.unibas.common.interfaces.EventSubscriber;
+import it.unibas.common.model.Event;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

@@ -1,8 +1,10 @@
 package it.unibas.generator;
 
-import it.unibas.model.Event;
-import it.unibas.model.EventSeverity;
-import it.unibas.model.EventType;
+import it.unibas.simulator.generator.GeneratorConfig;
+import it.unibas.simulator.generator.RandomEventGenerator;
+import it.unibas.common.model.Event;
+import it.unibas.common.model.EventSeverity;
+import it.unibas.common.model.EventType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;

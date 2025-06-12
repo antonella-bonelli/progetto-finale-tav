@@ -4,9 +4,14 @@ plugins {
 }
 
 application {
-    mainClass.set("it.unibas.Main")
+    mainClass.set("it.unibas.simulator.Main")
 }
 
+tasks.jar {
+    manifest {
+        attributes["Main-Class"] = "it.unibas.simulator.Main"
+    }
+}
 group = "it.unibas"
 version = "1.0-SNAPSHOT"
 
@@ -15,6 +20,7 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":common"))
     compileOnly("org.projectlombok:lombok:1.18.30")
     annotationProcessor("org.projectlombok:lombok:1.18.30")
 

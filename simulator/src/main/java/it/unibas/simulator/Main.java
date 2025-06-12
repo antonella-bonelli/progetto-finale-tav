@@ -1,9 +1,9 @@
-package it.unibas;
+package it.unibas.simulator;
 
-import it.unibas.generator.GeneratorConfig;
-import it.unibas.generator.RandomEventGenerator;
-import it.unibas.publisher.ConsoleEventSubscriber;
-import it.unibas.publisher.EventPublisher;
+import it.unibas.simulator.generator.RandomEventGenerator;
+import it.unibas.simulator.publisher.ConsoleEventSubscriber;
+import it.unibas.simulator.publisher.EventPublisher;
+import it.unibas.simulator.generator.GeneratorConfig;
 
 public class Main {
     public static void main(String[] args) {

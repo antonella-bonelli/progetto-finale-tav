@@ -1,6 +1,7 @@
-package it.unibas.generator;
+package it.unibas.simulator.generator;
 
-import it.unibas.model.*;
+
+import it.unibas.common.model.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;

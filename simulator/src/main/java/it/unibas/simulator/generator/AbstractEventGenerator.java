@@ -1,6 +1,6 @@
-package it.unibas.generator;
+package it.unibas.simulator.generator;
 
-import it.unibas.model.Event;
+
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Random;
@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
+import it.unibas.common.model.Event;
 @Slf4j
 public abstract class AbstractEventGenerator implements EventGenerator{
     protected final Random random = new Random();

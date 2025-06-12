@@ -1,7 +1,6 @@
-package it.unibas.generator;
+package it.unibas.simulator.generator;
 
-import it.unibas.model.Event;
-
+import it.unibas.common.model.Event;
 import java.util.function.Consumer;
 
 public interface EventGenerator {

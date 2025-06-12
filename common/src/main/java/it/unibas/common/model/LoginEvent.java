@@ -1,4 +1,4 @@
-package it.unibas.model;
+package it.unibas.common.model;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
