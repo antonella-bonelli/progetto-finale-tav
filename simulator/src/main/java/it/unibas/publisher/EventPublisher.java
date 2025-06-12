@@ -58,6 +58,10 @@ public class EventPublisher {
     }
 
     public boolean publishEvent(Event event) {
+        if (event == null) {
+            System.err.println("Null event should not be published");
+            return false;
+        }
         if (!isRunning.get()) {
             System.err.println("Cannot publish event: EventPublisher is not running");
             return false;
