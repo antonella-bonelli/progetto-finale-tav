@@ -1,0 +1,52 @@
+package it.unibas.ids.model;
+
+import it.unibas.common.model.Event;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NonNull;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+@Data
+@Builder
+public class Alert {
+
+    @Builder.Default
+    private final String alertId = generateAlertId();
+
+    @NonNull
+    @Builder.Default
+    private LocalDateTime timestamp = LocalDateTime.now();
+
+    @NonNull
+    private ThreatLevel threatLevel;
+
+    @NonNull
+    private String alertType;
+
+    @NonNull
+    private String description;
+
+    @NonNull
+    private String userId;
+
+    @NonNull
+    private List<Event> relatedEvents;
+
+    @Builder.Default
+    private AlertStatus status = AlertStatus.ACTIVE;
+
+    @Builder.Default
+    private Map<String, Object> metadata = new HashMap<>();
+
+    @Builder.Default
+    private double confidenceScore = 0.0;
+
+    private static String generateAlertId() {
+        return "ALR-" + System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 8);
+    }
+}
