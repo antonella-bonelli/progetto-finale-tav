@@ -18,7 +18,7 @@ public class GeneratorConfigTest {
         assertEquals(0.15, config.getSuspiciousEventProbability(), 0.001);
         assertFalse(config.isDebugMode());
         assertEquals("simulator", config.getSourceId());
-        assertEquals(-1, config.getMaxEvents());
+        assertEquals(10, config.getMaxEvents());
     }
 
     @Test
@@ -153,7 +153,7 @@ public class GeneratorConfigTest {
         assertEquals(0.20, config.getSuspiciousEventProbability(), 0.001);
         assertFalse(config.isDebugMode());
         assertEquals("simulator", config.getSourceId());
-        assertEquals(-1, config.getMaxEvents());
+        assertEquals(10, config.getMaxEvents());
     }
 
     @Test

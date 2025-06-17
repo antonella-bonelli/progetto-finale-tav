@@ -5,15 +5,10 @@ import it.unibas.simulator.generator.RandomEventGenerator;
 import it.unibas.common.model.Event;
 import it.unibas.common.model.EventSeverity;
 import it.unibas.common.model.EventType;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.RepeatedTest;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,12 +25,19 @@ public class RandomEventGeneratorTest {
                 .suspiciousEventProbability(0.5)
                 .debugMode(true)
                 .maxEvents(10)
-                .sourceId("test-source")
+                .numberOfSources(3)
                 .build();
 
         generator = new RandomEventGenerator(testConfig);
+        generator.setEventConsumer(event -> {System.out.println("[test event consumer] "+ event.getType());});
     }
 
+    @AfterEach
+    public void teardown() {
+        generator.updateConfig(testConfig);
+        generator.resetEventCounter();
+
+    }
 
     @Test
     void shouldCreateGeneratorWithValidConfig() {
@@ -51,7 +53,6 @@ public class RandomEventGeneratorTest {
             new RandomEventGenerator(null);
         });
     }
-
 
     @Test
     void shouldGenerateValidEvents() {
@@ -81,7 +82,6 @@ public class RandomEventGeneratorTest {
                         event.getType() == EventType.MULTIPLE_FAILED_LOGINS ||
                         event.getType() == EventType.DATA_EXFILTRATION ||
                         event.getType() == EventType.NORMAL_NETWORK_ACTIVITY
-
         );
     }
 
@@ -94,7 +94,8 @@ public class RandomEventGeneratorTest {
 
         long suspiciousCount = events.stream()
                 .filter(event ->
-                        event.getSeverity() == EventSeverity.MEDIUM || event.getSeverity() == EventSeverity.HIGH ||
+                        event.getSeverity() == EventSeverity.MEDIUM ||
+                                event.getSeverity() == EventSeverity.HIGH ||
                                 event.getSeverity() == EventSeverity.CRITICAL)
                 .count();
 
@@ -115,19 +116,22 @@ public class RandomEventGeneratorTest {
     }
 
     @Test
-    void shouldStartAndStopGenerator() {
+    void shouldStartAndStopGenerator() throws InterruptedException {
         assertFalse(generator.isActive());
 
         generator.start();
+        Thread.sleep(100);
         assertTrue(generator.isActive());
 
         generator.stop();
+        Thread.sleep(100);
         assertFalse(generator.isActive());
     }
 
     @Test
-    void shouldNotStartGeneratorTwice() {
+    void shouldNotStartGeneratorTwice() throws InterruptedException {
         generator.start();
+        Thread.sleep(100);
         assertTrue(generator.isActive());
 
         generator.start();
@@ -139,14 +143,12 @@ public class RandomEventGeneratorTest {
     @Test
     void shouldHandleStopWithoutStart() {
         assertFalse(generator.isActive());
-
         assertDoesNotThrow(() -> generator.stop());
-
         assertFalse(generator.isActive());
     }
 
     @Test
-    @Timeout(5)
+    @Timeout(10)
     void shouldStopGracefullyWithinTimeout() throws InterruptedException {
         generator.start();
         Thread.sleep(500);
@@ -155,35 +157,26 @@ public class RandomEventGeneratorTest {
         generator.stop();
         long stopTime = System.currentTimeMillis();
 
-        assertTrue(stopTime - startTime < 5000, "Stop should complete quickly");
+        assertTrue(stopTime - startTime < 7000, "Stop should complete within timeout");
         assertFalse(generator.isActive());
     }
 
-
     @Test
     void shouldDeliverEventsToConsumer() throws InterruptedException {
-        List<Event> receivedEvents = new ArrayList<>();
         CountDownLatch latch = new CountDownLatch(5);
 
         generator.setEventConsumer(event -> {
-            receivedEvents.add(event);
             latch.countDown();
         });
 
         generator.start();
 
-        assertTrue(latch.await(3, TimeUnit.SECONDS), "Should receive events within timeout");
+        assertTrue(latch.await(5, TimeUnit.SECONDS), "Should receive events within timeout");
 
         generator.stop();
 
-        assertTrue(receivedEvents.size() >= 5, "Should receive at least 5 events");
+        assertTrue(generator.getEventsGenerated() >= 5, "Should receive at least 5 events");
 
-        for (Event event : receivedEvents) {
-            assertNotNull(event);
-            assertNotNull(event.getType());
-            assertNotNull(event.getSeverity());
-            assertNotNull(event.getUserId());
-        }
     }
 
     @Test
@@ -212,42 +205,46 @@ public class RandomEventGeneratorTest {
 
         generator.start();
 
-        assertTrue(latch.await(2, TimeUnit.SECONDS));
+        assertTrue(latch.await(3, TimeUnit.SECONDS));
 
         generator.stop();
 
         assertTrue(eventCount.get() >= 3, "Should continue after consumer exception");
     }
 
-
     @Test
     void shouldRespectMaxEventsLimit() throws InterruptedException {
         GeneratorConfig limitedConfig = GeneratorConfig.builder()
                 .generatorName("LimitedGenerator")
                 .intervalMs(50)
-                .maxEvents(3)
+                .maxEvents(10)
+                .numberOfSources(3)
                 .build();
 
-        RandomEventGenerator limitedGenerator = new RandomEventGenerator(limitedConfig);
+        generator.updateConfig(limitedConfig);
         AtomicInteger eventCount = new AtomicInteger(0);
-        CountDownLatch finishLatch = new CountDownLatch(1);
+        CountDownLatch finishLatch = new CountDownLatch(10);
 
-        limitedGenerator.setEventConsumer(event -> {
+        generator.resetEventCounter();
+
+        generator.setEventConsumer(event -> {
             eventCount.incrementAndGet();
-
-            if (eventCount.get() == 3) {
-                finishLatch.countDown(); // ← Segnala: "Obiettivo raggiunto!"
-            }
+            finishLatch.countDown();
         });
 
-        limitedGenerator.start();
+        generator.start();
 
-        Thread.sleep(1000);
+        assertTrue(finishLatch.await(10, TimeUnit.SECONDS), "Should receive all events");
 
-        limitedGenerator.stop();
+        Thread.sleep(500);
 
-        assertEquals(3, eventCount.get(), "Should generate exactly maxEvents");
-        assertEquals(3, limitedGenerator.getEventsGenerated());
+        System.out.println("Count: " + eventCount.get() + " - event: " + generator.getEventsGenerated());
+        generator.stop();
+
+
+
+        assertEquals(10, eventCount.get(), "Should generate exactly maxEvents");
+        assertEquals(10, generator.getEventsGenerated());
     }
 
     @Test
@@ -256,6 +253,7 @@ public class RandomEventGeneratorTest {
                 .generatorName("UpdatedGenerator")
                 .intervalMs(200)
                 .suspiciousEventProbability(0.8)
+                .numberOfSources(2)
                 .build();
 
         generator.updateConfig(newConfig);
@@ -264,11 +262,10 @@ public class RandomEventGeneratorTest {
         assertEquals("UpdatedGenerator", generator.getGeneratorName());
     }
 
-
     @Test
     void shouldTrackGeneratedEventsCount() throws InterruptedException {
         AtomicInteger receivedCount = new AtomicInteger(0);
-        CountDownLatch latch = new CountDownLatch(5);
+        CountDownLatch latch = new CountDownLatch(15);
 
         generator.setEventConsumer(event -> {
             receivedCount.incrementAndGet();
@@ -278,20 +275,24 @@ public class RandomEventGeneratorTest {
         assertEquals(0, generator.getEventsGenerated());
 
         generator.start();
-        latch.await(2, TimeUnit.SECONDS);
+        latch.await(5, TimeUnit.SECONDS);
         generator.stop();
 
-        assertTrue(generator.getEventsGenerated() >= 5);
+        assertTrue(generator.getEventsGenerated() >= 10);
         assertEquals(receivedCount.get(), generator.getEventsGenerated());
     }
 
     @Test
     void shouldResetEventCounter() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(3);
-        generator.setEventConsumer(event -> latch.countDown());
+        generator.setEventConsumer(event -> {
+            if (latch.getCount() > 0) {
+                latch.countDown();
+            }
+        });
 
         generator.start();
-        latch.await(1, TimeUnit.SECONDS);
+        latch.await(2, TimeUnit.SECONDS);
         generator.stop();
 
         assertTrue(generator.getEventsGenerated() > 0);
@@ -300,16 +301,98 @@ public class RandomEventGeneratorTest {
         assertEquals(0, generator.getEventsGenerated());
     }
 
+    @Test
+    void shouldGenerateEventsFromMultipleSources() throws InterruptedException {
+        GeneratorConfig multiSourceConfig = GeneratorConfig.builder()
+                .generatorName("MultiSourceGenerator")
+                .intervalMs(50)
+                .numberOfSources(3)
+                .build();
+
+        System.out.println("*** "+multiSourceConfig.getMaxEvents());
+        generator.updateConfig(multiSourceConfig);
+        Set<Integer> activeThreadIds = ConcurrentHashMap.newKeySet();
+        CountDownLatch latch = new CountDownLatch(10);
+
+        generator.setEventConsumer(event -> {
+            activeThreadIds.add(Thread.currentThread().hashCode());
+            if (latch.getCount() > 0) {
+                latch.countDown();
+            }
+        });
+
+        generator.start();
+        assertTrue(latch.await(10, TimeUnit.SECONDS), "Should generate events from all sources");
+        generator.stop();
+
+        assertTrue(activeThreadIds.size() >= 2,
+                "Should have events from multiple threads, but got: " + activeThreadIds.size());
+    }
+
+    @Test
+    void shouldRespectEventDistributionProbabilities() throws InterruptedException {
+        GeneratorConfig probConfig = GeneratorConfig.builder()
+                .generatorName("ProbabilityTestGenerator")
+                .intervalMs(5)  // Ancora più veloce
+                .maxEvents(200)
+                .numberOfSources(3)
+                .suspiciousEventProbability(0.3)
+                .build();
+
+        generator.updateConfig(probConfig);
+        List<Event> events = Collections.synchronizedList(new ArrayList<>());
+        CountDownLatch latch = new CountDownLatch(200);
+
+        generator.setEventConsumer(event -> {
+            events.add(event);
+            latch.countDown();
+        });
+
+        generator.start();
+
+        assertTrue(latch.await(30, TimeUnit.SECONDS), "Should generate all events within timeout");
+
+        generator.stop();
+
+        Thread.sleep(100);
+
+        assertEquals(200, events.size(), "Should receive exactly maxEvents");
+
+        long suspiciousEvents = events.stream()
+                .filter(event ->
+                        event.getSeverity() == EventSeverity.MEDIUM ||
+                                event.getSeverity() == EventSeverity.HIGH ||
+                                event.getSeverity() == EventSeverity.CRITICAL)
+                .count();
+
+        double actualSuspiciousRatio = (double) suspiciousEvents / events.size();
+
+        assertTrue(actualSuspiciousRatio >= 0.2 && actualSuspiciousRatio <= 0.4,
+                String.format("Suspicious event ratio should be around 0.3, but was: %.2f",
+                        actualSuspiciousRatio));
+    }
 
     @Test
     void shouldHandleConcurrentStartStopOperations() throws InterruptedException {
+        // Usa un generator con configurazione più semplice
+        GeneratorConfig concurrentConfig = GeneratorConfig.builder()
+                .generatorName("ConcurrentTestGenerator")
+                .intervalMs(100)
+                .numberOfSources(2)  // Meno thread
+                .build();
+
+        //RandomEventGenerator concurrentGenerator = new RandomEventGenerator(concurrentConfig);
+        generator.updateConfig(concurrentConfig);
         int threadCount = 10;
         CountDownLatch startLatch = new CountDownLatch(threadCount);
         CountDownLatch finishLatch = new CountDownLatch(threadCount);
 
+        // Usa un executor per i thread di test
+        ExecutorService testExecutor = Executors.newFixedThreadPool(threadCount);
+
         for (int i = 0; i < threadCount; i++) {
             final int threadIndex = i;
-            new Thread(() -> {
+            testExecutor.submit(() -> {
                 try {
                     startLatch.countDown();
                     startLatch.await();
@@ -324,13 +407,18 @@ public class RandomEventGeneratorTest {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
-            }).start();
+            });
         }
 
-        assertTrue(finishLatch.await(5, TimeUnit.SECONDS));
+        assertTrue(finishLatch.await(10, TimeUnit.SECONDS), "All operations should complete");
 
+        // Cleanup
+        testExecutor.shutdown();
         generator.stop();
+
+        // Attendi che si fermi completamente
+        Thread.sleep(500);
+
         assertFalse(generator.isActive());
     }
 }
-

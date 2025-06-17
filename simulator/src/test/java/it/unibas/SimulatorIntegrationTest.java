@@ -43,6 +43,7 @@ public class SimulatorIntegrationTest {
                 .build();
 
         generator = new RandomEventGenerator(config);
+        generator.setEventConsumer(event -> {System.out.println("[Test default consumer " + event.getType());});
         subscriber = new TestIntegrationSubscriber();
     }
 
@@ -54,6 +55,7 @@ public class SimulatorIntegrationTest {
         if (publisher.isRunning()) {
             publisher.stop();
         }
+        generator.resetEventCounter();
     }
 
     @Test
@@ -104,30 +106,30 @@ public class SimulatorIntegrationTest {
                 .publishIntervalMs(5)
                 .build();
 
-        RandomEventGenerator highVolumeGenerator = new RandomEventGenerator(highVolumeConfig);
+        generator.updateConfig(highVolumeConfig);
         TestIntegrationSubscriber highVolumeSubscriber = new TestIntegrationSubscriber();
 
         try {
             highVolumePublisher.subscribe(highVolumeSubscriber);
             highVolumePublisher.start();
 
-            highVolumeGenerator.setEventConsumer(highVolumePublisher::publishEvent);
-            highVolumeGenerator.start();
+            generator.setEventConsumer(highVolumePublisher::publishEvent);
+            generator.start();
 
             highVolumeSubscriber.waitForEvents(100, 10, TimeUnit.SECONDS);
 
-            highVolumeGenerator.stop();
+            generator.stop();
             Thread.sleep(500);
             highVolumePublisher.stop();
 
-            assertEquals(100, highVolumeGenerator.getEventsGenerated());
+            assertEquals(100, generator.getEventsGenerated());
             assertTrue(highVolumeSubscriber.getReceivedEvents().size() >= 95,
                     "Should receive at least 95% of events in high-volume scenario");
             assertTrue(highVolumePublisher.getDroppedEventCount() < 5,
                     "Should drop very few events");
 
         } finally {
-            highVolumeGenerator.stop();
+            generator.stop();
             highVolumePublisher.stop();
         }
     }
@@ -207,30 +209,30 @@ public class SimulatorIntegrationTest {
         GeneratorConfig rapidConfig = GeneratorConfig.builder()
                 .generatorName("RapidGenerator")
                 .intervalMs(5)
-                .maxEvents(-1)
+                .maxEvents(10)
                 .suspiciousEventProbability(0.5)
                 .build();
 
-        RandomEventGenerator rapidGenerator = new RandomEventGenerator(rapidConfig);
-
+        //RandomEventGenerator rapidGenerator = new RandomEventGenerator(rapidConfig);
+        generator.updateConfig(rapidConfig);
         publisher.subscribe(subscriber);
         publisher.start();
 
-        rapidGenerator.setEventConsumer(publisher::publishEvent);
-        rapidGenerator.start();
+        generator.setEventConsumer(publisher::publishEvent);
+        generator.start();
 
         Thread.sleep(2000);
 
         long stopStartTime = System.currentTimeMillis();
-        rapidGenerator.stop();
+        generator.stop();
         publisher.stop();
         long stopEndTime = System.currentTimeMillis();
 
         assertTrue(stopEndTime - stopStartTime < 3000, "Shutdown should complete within 3 seconds");
-        assertFalse(rapidGenerator.isActive(), "Generator should be stopped");
+        assertFalse(generator.isActive(), "Generator should be stopped");
         assertFalse(publisher.isRunning(), "Publisher should be stopped");
 
-        assertTrue(rapidGenerator.getEventsGenerated() > 0, "Should have generated some events");
+        assertTrue(generator.getEventsGenerated() > 0, "Should have generated some events");
         assertTrue(subscriber.getReceivedEvents().size() > 0, "Should have received some events");
     }
 
@@ -243,17 +245,16 @@ public class SimulatorIntegrationTest {
                 .suspiciousEventProbability(0.3)
                 .build();
 
-        RandomEventGenerator probGenerator = new RandomEventGenerator(probConfig);
-
+        generator.updateConfig(probConfig);
         publisher.subscribe(subscriber);
         publisher.start();
 
-        probGenerator.setEventConsumer(publisher::publishEvent);
-        probGenerator.start();
+        generator.setEventConsumer(publisher::publishEvent);
+        generator.start();
 
         subscriber.waitForEvents(200, 15, TimeUnit.SECONDS);
 
-        probGenerator.stop();
+        generator.stop();
         publisher.stop();
 
         List<Event> events = subscriber.getReceivedEvents();

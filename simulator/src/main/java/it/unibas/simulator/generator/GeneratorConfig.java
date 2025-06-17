@@ -28,7 +28,10 @@ public class GeneratorConfig {
     private String sourceId = "simulator";
 
     @Builder.Default
-    private int maxEvents = -1;
+    private int maxEvents = 10;
+
+    @Builder.Default
+    private int numberOfSources = 2;
 
     public static GeneratorConfig loadFromProperties(String propertiesFile) {
         Properties props = new Properties();
@@ -53,7 +56,7 @@ public class GeneratorConfig {
         double suspiciousProbability = Double.parseDouble(
                 props.getProperty("simulator.suspicious.probability", "0.15"));
         boolean debugMode = Boolean.parseBoolean(props.getProperty("simulator.debug", "false"));
-        int maxEvents = Integer.parseInt(props.getProperty("simulator.max.events", "-1"));
+        int maxEvents = Integer.parseInt(props.getProperty("simulator.max.events", "10"));
         String sourceId = props.getProperty("simulator.source.id", "simulator");
 
         return GeneratorConfig.builder()
@@ -81,6 +84,10 @@ public class GeneratorConfig {
 
         if (suspiciousEventProbability < 0.0 || suspiciousEventProbability > 1.0) {
             throw new IllegalArgumentException("Suspicious event probability must be between 0.0 and 1.0");
+        }
+
+        if(maxEvents <= 0) {
+            throw new IllegalArgumentException("Max event limit must be positive");
         }
     }
 
