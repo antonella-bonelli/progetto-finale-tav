@@ -33,6 +33,9 @@ public class GeneratorConfig {
     @Builder.Default
     private int numberOfSources = 2;
 
+    @Builder.Default
+    private int port = 9876;
+
     public static GeneratorConfig loadFromProperties(String propertiesFile) {
         Properties props = new Properties();
 

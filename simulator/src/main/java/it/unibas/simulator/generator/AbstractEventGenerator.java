@@ -175,10 +175,10 @@ public abstract class AbstractEventGenerator implements EventGenerator {
         if (eventConsumer != null) {
             try {
                 eventConsumer.accept(event);
-                log.debug("Dispatched event: {} from source{}", event.getType(), sourceId);
+                log.debug("Dispatched event: {} from {}", event.getType(), sourceId);
                 eventsGenerated.incrementAndGet();
             } catch (Exception e) {
-                log.error("Error dispatching event from source{}: {}", sourceId, e.getMessage(), e);
+                log.error("Error dispatching event from {}: {}", sourceId, e.getMessage(), e);
             }
         } else {
             log.warn("No event consumer registered for generator: {}", sourceId);

@@ -1,5 +1,17 @@
 plugins {
     id("java")
+    id("application")
+}
+
+
+application {
+    mainClass.set("it.unibas.ids.IDSMain")
+}
+
+tasks.jar {
+    manifest {
+        attributes["Main-Class"] = "it.unibas.ids.IDSMain"
+    }
 }
 
 group = "it.unibas"
@@ -21,7 +33,7 @@ dependencies {
 
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.6")
-    implementation("ch.qos.logback:logback-classic:1.4.5")
+    implementation("ch.qos.logback:logback-classic:1.5.13")
 
     // JUnit per i test
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.2")
@@ -30,6 +42,9 @@ dependencies {
     testImplementation("org.mockito:mockito-junit-jupiter:5.1.1")
     testImplementation(platform("org.junit:junit-bom:5.9.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.19.0")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.0")
 }
 
 tasks.test {

@@ -4,82 +4,181 @@ import it.unibas.simulator.generator.RandomEventGenerator;
 import it.unibas.simulator.publisher.ConsoleEventSubscriber;
 import it.unibas.simulator.publisher.EventPublisher;
 import it.unibas.simulator.generator.GeneratorConfig;
+import it.unibas.simulator.publisher.TCPSocketPublisher;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+
+
+@Slf4j
 public class Main {
-    public static void main(String[] args) {
+    private static EventPublisher publisher;
+    private static RandomEventGenerator generator;
+    private static final AtomicBoolean initialized = new AtomicBoolean(false);
+    private static final CountDownLatch initLatch = new CountDownLatch(0);
+    private static Thread mainThread;
+    private static TCPSocketPublisher tcpPublisher;
+
+
+    public static EventPublisher getPublisher() {
         try {
-            // 1. Carica configurazione
+            if(publisher != null) {
+                return publisher;
+            }
+            log.warn("Publisher not initialized!");
+            return null;
+        } catch (Exception e) {
+            log.error("Error: ", e);
+            Thread.currentThread().interrupt();
+        }
+        return null;
+    }
+
+    public static RandomEventGenerator getGenerator() {
+        try {
+            if(generator != null) {
+                return generator;
+            }
+            log.warn("Generator not initialized!");
+            return null;
+        } catch (Exception e) {
+            Thread.currentThread().interrupt();
+        }
+        return null;
+    }
+
+    public static boolean isInitialized() {
+        return initialized.get();
+    }
+
+    public static boolean isRunning() {
+        return initialized.get() &&
+                publisher != null && publisher.isRunning() &&
+                generator != null && generator.isActive();
+    }
+
+    public static void  shutdown() {
+        log.info("Shutdow requested...");
+        if(generator != null) {
+            generator.stop();
+        }
+        if(publisher != null) {
+            publisher.stop();
+        }
+        if(mainThread != null && mainThread.isAlive()) {
+            mainThread.interrupt();
+        }
+    }
+    public static void main(String[] args) {
+        mainThread = Thread.currentThread();
+
+        try {
+
             GeneratorConfig config;
             try {
                 config = GeneratorConfig.loadFromProperties("simulator.properties");
-                System.out.println("✅ Loaded configuration from simulator.properties");
+                log.info("Loaded configutation from simulator properties");
             } catch (Exception e) {
-                System.out.println("⚠️ Properties file not found, using default configuration");
+                log.error("Properties file not found, {}", e.getMessage());
+                log.info("Using default config");
                 config = GeneratorConfig.defaultConfig();
             }
-
-            // 2. Valida la configurazione
             config.validate();
             config.printSummary();
 
-            // 3. Crea e configura EventPublisher
-            EventPublisher publisher = EventPublisher.builder()
+            publisher = EventPublisher.builder()
                     .maxQueueSize(1000)
                     .publishIntervalMs(100)
                     .build();
+            log.info("Publisher has been set");
 
-            // 4. Aggiungi subscriber per vedere gli eventi
-            ConsoleEventSubscriber consoleSubscriber = ConsoleEventSubscriber.showAll();
-            publisher.subscribe(consoleSubscriber);
+            // TCP
+            tcpPublisher = new TCPSocketPublisher(config.getPort());
+            tcpPublisher.start();
 
-            // 5. Avvia il publisher
+            ConsoleEventSubscriber consoleEventSubscriber = ConsoleEventSubscriber.showAll();
+            publisher.subscribe(consoleEventSubscriber);
+
             publisher.start();
 
-            // 6. Crea e configura il generatore
-            RandomEventGenerator generator = new RandomEventGenerator(config);
+            generator = new RandomEventGenerator(config);
 
-            // 7. Connetti generatore al publisher (invece del consumer diretto)
             generator.setEventConsumer(event -> {
                 boolean published = publisher.publishEvent(event);
+                tcpPublisher.broadcast(event);
                 if (!published) {
-                    System.err.println("❌ Failed to publish event: " + event.getType());
+                    log.error("Failed to publish event: {}", event.getType());
                 }
             });
 
-            // 8. Avvia la generazione
-            System.out.println("🚀 Starting event generator...");
+            log.info("Starting event generation...");
             generator.start();
 
-            // 9. Monitora per 30 secondi
-            for (int i = 0; i < 30; i += 5) {
-                Thread.sleep(5000);
+            initialized.set(true);
+            initLatch.countDown();
+            log.info("Simulator fully initialized and ready for connections");
 
-                // Stampa statistiche ogni 5 secondi
-                EventPublisher.PublisherStats stats = publisher.getStats();
-                System.out.println("\n📊 Statistiche dopo " + (i + 5) + " secondi:");
-                System.out.println("   Generator: " + generator.getEventsGenerated() + " eventi generati");
-                System.out.println("   Publisher: " + stats.getPublishedEvents() + " eventi pubblicati");
-                System.out.println("   Queue: " + stats.getQueueSize() + " eventi in coda");
-                System.out.println("   Dropped: " + stats.getDroppedEvents() + " eventi persi");
+            if( args.length > 0 && args[0].equals("daemon")) {
+                runDaemonMode();
+            } else if( args.length > 0){
+                log.error("Error: wrong args");
+                return;
+            } else {
+                runMonitoringMode(30);
             }
-
-            // 10. Ferma tutto
-            System.out.println("\n🛑 Stopping simulation...");
-            generator.stop();
-            publisher.stop();
-
-            // 11. Statistiche finali
-            EventPublisher.PublisherStats finalStats = publisher.getStats();
-            System.out.println("\n📈 Statistiche Finali:");
-            System.out.println("   Eventi generati: " + generator.getEventsGenerated());
-            System.out.println("   Eventi pubblicati: " + finalStats.getPublishedEvents());
-            System.out.println("   Eventi persi: " + finalStats.getDroppedEvents());
-            System.out.println("   Efficienza: " +
-                    String.format("%.1f%%", (finalStats.getPublishedEvents() * 100.0) / generator.getEventsGenerated()));
-
         } catch (Exception e) {
-            System.err.println("❌ Error: " + e.getMessage());
+            log.error("Error: {}", e.getMessage());
             e.printStackTrace();
+            initLatch.countDown();
+        } finally {
+            shutdown();
         }
+    }
+
+    private static void runDaemonMode() throws InterruptedException {
+        log.info("Running in daemon mode. Press cmd + c to stop");
+
+        while (!Thread.currentThread().isInterrupted()) {
+            Thread.sleep(30000);
+            printStatistics();
+        }
+    }
+
+    private static  void runMonitoringMode(int durationSeconds) throws InterruptedException {
+        log.info("Running in monitoring mode for {} seconds", durationSeconds);
+
+        for (int i = 0; i < durationSeconds; i += 5) {
+            Thread.sleep(5000);
+
+            log.info("\n📊 Statistiche dopo " + (i + 5) + " secondi:");
+            printStatistics();
+        }
+
+        log.info("\n📈 Statistiche Finali:");
+        printFinalStatistics();
+    }
+
+    private static void printStatistics() {
+        EventPublisher.PublisherStats stats = publisher.getStats();
+        log.info("   Generator: " + generator.getEventsGenerated() + " eventi generati");
+        log.info("   Publisher: " + stats.getPublishedEvents() + " eventi pubblicati");
+        log.info("   Queue: " + stats.getQueueSize() + " eventi in coda");
+        log.info("   Subscribers: " + stats.getSubscriberCount());
+        log.info("   Dropped: " + stats.getDroppedEvents() + " eventi persi");
+    }
+
+    private static void printFinalStatistics() {
+        EventPublisher.PublisherStats finalStats = publisher.getStats();
+        log.info("   Eventi generati: " + generator.getEventsGenerated());
+        log.info("   Eventi pubblicati: " + finalStats.getPublishedEvents());
+        log.info("   Eventi persi: " + finalStats.getDroppedEvents());
+
+        double efficiency = generator.getEventsGenerated() > 0 ?
+                (finalStats.getPublishedEvents() * 100.0) / generator.getEventsGenerated() : 100.0;
+
+        log.info("   Efficienza: " + String.format("%.1f%%", efficiency));
     }
 }

@@ -67,7 +67,8 @@ public class RuleBasedAnalyzer implements EventAnalyzer{
 
     private String generateDescription(Event event) {
         return String.format("Suspicious activity detected: %s from %s",
-                event.getType());
+                event.getType(), event.getUserId()
+        );
     }
 
     private double calculateConfidence(Event event) {
