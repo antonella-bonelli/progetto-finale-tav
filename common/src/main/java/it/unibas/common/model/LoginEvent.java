@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginEvent extends Event{
+public class LoginEvent extends Event {
     @Builder.Default
     private String loginMethod = "password";
 
@@ -29,6 +29,7 @@ public class LoginEvent extends Event{
                 .timestamp(LocalDateTime.now())
                 .severity(EventSeverity.LOW);
     }
+
     public static LoginEventBuilder suspiciousLogin(String userId) {
         return LoginEvent.builder()
                 .type(EventType.SUSPICIOUS_LOGIN)

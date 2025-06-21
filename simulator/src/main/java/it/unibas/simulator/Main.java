@@ -25,7 +25,7 @@ public class Main {
 
     public static EventPublisher getPublisher() {
         try {
-            if(publisher != null) {
+            if (publisher != null) {
                 return publisher;
             }
             log.warn("Publisher not initialized!");
@@ -39,7 +39,7 @@ public class Main {
 
     public static RandomEventGenerator getGenerator() {
         try {
-            if(generator != null) {
+            if (generator != null) {
                 return generator;
             }
             log.warn("Generator not initialized!");
@@ -60,21 +60,22 @@ public class Main {
                 generator != null && generator.isActive();
     }
 
-    public static void  shutdown() {
+    public static void shutdown() {
         log.info("Shutdow requested...");
-        if(generator != null) {
+        if (generator != null) {
             generator.stop();
         }
-        if(publisher != null) {
+        if (publisher != null) {
             publisher.stop();
         }
-        if(tcpPublisher != null) {
+        if (tcpPublisher != null) {
             tcpPublisher.stop();
         }
-        if(mainThread != null && mainThread.isAlive()) {
+        if (mainThread != null && mainThread.isAlive()) {
             mainThread.interrupt();
         }
     }
+
     public static void main(String[] args) {
         mainThread = Thread.currentThread();
 
@@ -124,9 +125,9 @@ public class Main {
             initLatch.countDown();
             log.info("Simulator fully initialized and ready for connections");
 
-            if( args.length > 0 && args[0].equals("daemon")) {
+            if (args.length > 0 && args[0].equals("daemon")) {
                 runDaemonMode();
-            } else if( args.length > 0){
+            } else if (args.length > 0) {
                 log.error("Error: wrong args");
                 return;
             } else {
@@ -150,7 +151,7 @@ public class Main {
         }
     }
 
-    private static  void runMonitoringMode(int durationSeconds) throws InterruptedException {
+    private static void runMonitoringMode(int durationSeconds) throws InterruptedException {
         log.info("Running in monitoring mode for {} seconds", durationSeconds);
 
         for (int i = 0; i < durationSeconds; i += 5) {

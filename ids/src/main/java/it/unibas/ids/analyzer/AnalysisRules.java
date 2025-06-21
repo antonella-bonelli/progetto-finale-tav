@@ -11,7 +11,7 @@ import java.util.Set;
 
 @Data
 @Builder
-public class AnalysisRules implements Cloneable{
+public class AnalysisRules implements Cloneable {
     // Soglie per diversi tipi di eventi
     @Builder.Default
     private Map<EventType, Integer> eventThresholds = new HashMap<>();

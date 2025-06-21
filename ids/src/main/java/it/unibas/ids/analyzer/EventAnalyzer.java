@@ -6,7 +6,6 @@ public interface EventAnalyzer {
 
     void analyzeEvent(Event event);
 
-
     void updateRules(AnalysisRules rules);
 
     AnalysisStats getStats();

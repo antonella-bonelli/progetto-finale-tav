@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class NetworkEvent extends Event{
+public class NetworkEvent extends Event {
     @NonNull
     private String sourceIp;
 
@@ -41,7 +41,7 @@ public class NetworkEvent extends Event{
                 .severity(EventSeverity.LOW);
     }
 
-    public static NetworkEventBuilder suspiciousTraffic(String sourceIp,String destinationIp, String userId) {
+    public static NetworkEventBuilder suspiciousTraffic(String sourceIp, String destinationIp, String userId) {
         return NetworkEvent.builder()
                 .type(EventType.SUSPICIOUS_NETWORK_ACTIVITY)
                 .userId(userId)
@@ -51,7 +51,7 @@ public class NetworkEvent extends Event{
                 .severity(EventSeverity.HIGH);
     }
 
-    public static NetworkEventBuilder dataExfiltration(String sourceIp, String destinationIp,String userId) {
+    public static NetworkEventBuilder dataExfiltration(String sourceIp, String destinationIp, String userId) {
         return NetworkEvent.builder()
                 .type(EventType.DATA_EXFILTRATION)
                 .userId(userId)

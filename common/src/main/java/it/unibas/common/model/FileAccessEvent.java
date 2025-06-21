@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
-public class FileAccessEvent extends Event{
+public class FileAccessEvent extends Event {
     @NonNull
     private String filePath;
 

@@ -1,7 +1,6 @@
 package it.unibas.simulator.publisher;
 
 
-
 import it.unibas.common.interfaces.EventSubscriber;
 import it.unibas.common.model.Event;
 import it.unibas.common.model.EventSeverity;

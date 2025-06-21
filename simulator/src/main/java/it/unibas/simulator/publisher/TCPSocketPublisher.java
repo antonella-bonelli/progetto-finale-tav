@@ -42,7 +42,7 @@ public class TCPSocketPublisher {
         try {
             String json = objectMapper.writeValueAsString(event);
             for (Socket client : clients) {
-                try{
+                try {
                     OutputStream out = client.getOutputStream();
                     out.write((json + "\n").getBytes());
                     out.flush();

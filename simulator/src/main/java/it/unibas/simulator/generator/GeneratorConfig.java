@@ -28,7 +28,7 @@ public class GeneratorConfig {
     private String sourceId = "simulator";
 
     @Builder.Default
-    private int maxEvents = 10;
+    private int maxEvents = 1000;
 
     @Builder.Default
     private int numberOfSources = 2;
@@ -89,7 +89,7 @@ public class GeneratorConfig {
             throw new IllegalArgumentException("Suspicious event probability must be between 0.0 and 1.0");
         }
 
-        if(maxEvents <= 0) {
+        if (maxEvents <= 0) {
             throw new IllegalArgumentException("Max event limit must be positive");
         }
     }

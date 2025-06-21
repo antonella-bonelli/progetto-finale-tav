@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
-public class RandomEventGenerator extends AbstractEventGenerator{
+public class RandomEventGenerator extends AbstractEventGenerator {
     private static final List<String> SAMPLE_USERS = List.of(
             "john.doe", "jane.smith", "admin", "root", "guest",
             "alice.johnson", "bob.wilson", "charlie.brown", "diana.prince", "eve.adams"
@@ -180,9 +180,11 @@ public class RandomEventGenerator extends AbstractEventGenerator{
         List<String> externalIps = List.of("203.0.113.42", "198.51.100.25", "1.2.3.4", "8.8.8.8");
         return getRandomElement(externalIps);
     }
+
     private String getRandomFile() {
         return getRandomElement(SAMPLE_FILES);
     }
+
     private <T> T getRandomElement(List<T> list) {
         return list.get(random.nextInt(list.size()));
     }

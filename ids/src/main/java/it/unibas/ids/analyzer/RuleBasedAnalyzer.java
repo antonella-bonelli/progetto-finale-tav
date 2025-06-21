@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @Singleton
-public class RuleBasedAnalyzer implements EventAnalyzer{
+public class RuleBasedAnalyzer implements EventAnalyzer {
     private final AnalysisStats stats = AnalysisStats.builder().build();
     private final AlertManager alertManager;
     private final AtomicLong eventsAnalyzed = new AtomicLong(0);
@@ -31,16 +31,11 @@ public class RuleBasedAnalyzer implements EventAnalyzer{
 
     private boolean shouldGenerateAlert(Event event) {
         // Logica di analisi semplificata
-        switch (event.getType()) {
-            case UNAUTHORIZED_FILE_ACCESS:
-            case SENSITIVE_FILE_ACCESS:
-            case SUSPICIOUS_NETWORK_ACTIVITY:
-                return true;
-            case FAILED_LOGIN:
-                return event.getSeverity() == EventSeverity.HIGH;
-            default:
-                return false;
-        }
+        return switch (event.getType()) {
+            case UNAUTHORIZED_FILE_ACCESS, SENSITIVE_FILE_ACCESS, SUSPICIOUS_NETWORK_ACTIVITY -> true;
+            case FAILED_LOGIN -> event.getSeverity() == EventSeverity.HIGH;
+            default -> false;
+        };
     }
 
     private Alert createAlert(Event event) {

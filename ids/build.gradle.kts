@@ -1,6 +1,7 @@
 plugins {
     id("java")
     id("application")
+    id("io.freefair.aspectj.post-compile-weaving") version "8.14"
 }
 
 
@@ -28,8 +29,6 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.30")
 
     implementation("com.google.inject:guice:7.0.0")
-    implementation("org.aspectj:aspectjweaver:1.9.19")
-    implementation("org.aspectj:aspectjrt:1.9.19")
 
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.6")
@@ -45,6 +44,10 @@ dependencies {
 
     implementation("com.fasterxml.jackson.core:jackson-databind:2.19.0")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.19.0")
+
+    // AspectJ
+    implementation("org.aspectj:aspectjrt:1.9.24")
+    implementation("org.aspectj:aspectjweaver:1.9.24")
 }
 
 tasks.test {

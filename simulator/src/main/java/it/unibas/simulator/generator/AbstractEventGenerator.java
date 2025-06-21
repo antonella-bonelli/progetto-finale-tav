@@ -153,13 +153,13 @@ public abstract class AbstractEventGenerator implements EventGenerator {
 
     public abstract Event generateEvent();
 
-    public int  getEventsGenerated() {
+    public int getEventsGenerated() {
         return eventsGenerated.get();
     }
 
     public void resetEventCounter() {
         eventsGenerated.set(0);
-        if(eventSemaphore != null) {
+        if (eventSemaphore != null) {
             eventSemaphore.drainPermits();
             eventSemaphore.release(config.getMaxEvents());
             log.info("Reset semaphore permits to maxEvents");
@@ -201,24 +201,24 @@ public abstract class AbstractEventGenerator implements EventGenerator {
 
     private void generateAndDispatchEvent(String sourceId) {
         try {
-            if(getAvailableEventPermits() <= 0) {
+            if (getAvailableEventPermits() <= 0) {
                 log.debug("Source {} cannot generate event - limit reached", sourceId);
                 return;
             }
             log.debug("Source {} acquired permit (remaining {})", sourceId, getAvailableEventPermits());
             Event event = generateEvent();
             if (event != null) {
-                if(!eventSemaphore.tryAcquire()) {
+                if (!eventSemaphore.tryAcquire()) {
                     return;
                 }
                 dispatchEvent(event, sourceId);
             } else {
                 eventSemaphore.release();
-                log.debug("{}",event);
+                log.debug("{}", event);
                 log.debug("Source {} released permit (event was null)", sourceId);
             }
         } catch (Exception e) {
-            if(eventSemaphore != null) {
+            if (eventSemaphore != null) {
                 eventSemaphore.release();
                 log.debug("Source {} released permit due to error", sourceId);
             }

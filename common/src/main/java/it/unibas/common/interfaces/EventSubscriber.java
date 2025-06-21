@@ -4,13 +4,14 @@ import it.unibas.common.model.Event;
 
 public interface EventSubscriber {
 
-        void onEvent(Event event);
+    void onEvent(Event event);
 
-        default String getSubscriberName() {
-            return this.getClass().getSimpleName();
-        }
+    default String getSubscriberName() {
+        return this.getClass().getSimpleName();
+    }
 
-        default boolean isInterestedIn(Event event) {
-            return true;
-        }
+    default boolean isInterestedIn(Event event) {
+        return true;
+    }
+
 }

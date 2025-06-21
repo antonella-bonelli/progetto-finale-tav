@@ -18,6 +18,7 @@ public class EventCollector implements EventSubscriber {
     private final AtomicLong eventsReceived = new AtomicLong(0);
 
     private final ObjectMapper objectMapper = ObjectMapperFactory.create();
+
     @Inject
     public EventCollector(EventAnalyzer eventAnalyzer) {
         this.eventAnalyzer = eventAnalyzer;
@@ -36,6 +37,7 @@ public class EventCollector implements EventSubscriber {
             log.error("Error processing event: {}", event.getType(), e);
         }
     }
+
     public void onEventJson(String eventJson) {
         try {
             if (eventJson == null || eventJson.trim().isEmpty()) {
@@ -43,7 +45,7 @@ public class EventCollector implements EventSubscriber {
                 return;
             }
             Event event = objectMapper.readValue(eventJson, Event.class);
-            if(event == null) {
+            if (event == null) {
                 log.warn("Parsed event is null");
                 return;
             }
