@@ -24,10 +24,9 @@ class IDSMain {
             Injector idsInjector = Guice.createInjector(new IdsModule());
 
             EventCollector collector = idsInjector.getInstance(EventCollector.class);
-            IdsProperties properties = idsInjector.getInstance(IdsProperties.class);
 
             log.info("Connecting to tcp socket...");
-            TCPEventSubscriber tcpSubscriber = new TCPEventSubscriber(properties.getTcpHost(), properties.getTcpPort());
+            TCPEventSubscriber tcpSubscriber = idsInjector.getInstance(TCPEventSubscriber.class);
             tcpSubscriber.start(collector);
 
         } catch (Exception e) {

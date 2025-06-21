@@ -1,22 +1,23 @@
 package it.unibas.ids.collector;
 
-import jakarta.inject.Inject;
-import jakarta.inject.Named;
+
+import com.google.inject.Inject;
+import it.unibas.ids.config.IdsProperties;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.Socket;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Slf4j
 public class TCPEventSubscriber {
     private final String host;
-    private  final  int port;
+    private final int port;
 
-    public TCPEventSubscriber(String host, int port) {
-        this.host = host;
-        this.port = port;
+    @Inject
+    public TCPEventSubscriber(IdsProperties properties) {
+        this.host = properties.getTcpHost();
+        this.port = properties.getTcpPort();
     }
 
     public void start(EventCollector collector) {
