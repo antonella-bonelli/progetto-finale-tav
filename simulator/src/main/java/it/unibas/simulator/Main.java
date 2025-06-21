@@ -68,6 +68,9 @@ public class Main {
         if(publisher != null) {
             publisher.stop();
         }
+        if(tcpPublisher != null) {
+            tcpPublisher.stop();
+        }
         if(mainThread != null && mainThread.isAlive()) {
             mainThread.interrupt();
         }

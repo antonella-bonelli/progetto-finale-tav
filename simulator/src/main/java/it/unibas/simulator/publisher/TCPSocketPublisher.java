@@ -59,4 +59,24 @@ public class TCPSocketPublisher {
             e.printStackTrace();
         }
     }
+
+    public void stop() {
+        try {
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                serverSocket.close();
+            }
+            // Chiudere tutti i client
+            for (Socket client : clients) {
+                try {
+                    client.close();
+                } catch (Exception e) {
+                    log.warn("Error closing client: {}", e.getMessage());
+                }
+            }
+            clients.clear();
+        } catch (Exception e) {
+            log.error("Error stopping TCP publisher: {}", e.getMessage());
+        }
+    }
+
 }
