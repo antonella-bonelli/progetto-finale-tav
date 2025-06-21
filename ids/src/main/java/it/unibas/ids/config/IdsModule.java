@@ -4,6 +4,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Singleton;
 import it.unibas.ids.analyzer.EventAnalyzer;
 import it.unibas.ids.analyzer.RuleBasedAnalyzer;
+import it.unibas.ids.aspect.SuspiciousEventLoggingAspect;
+import org.aspectj.lang.Aspects;
 
 public class IdsModule extends AbstractModule {
 
@@ -11,6 +13,8 @@ public class IdsModule extends AbstractModule {
     protected void configure() {
         bind(EventAnalyzer.class).to(RuleBasedAnalyzer.class);
         bind(IdsProperties.class).in(Singleton.class);
+
+        requestInjection(Aspects.aspectOf(SuspiciousEventLoggingAspect.class));
     }
 
 }

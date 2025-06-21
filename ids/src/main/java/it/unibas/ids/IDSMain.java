@@ -5,12 +5,7 @@ import com.google.inject.Injector;
 import it.unibas.ids.collector.EventCollector;
 import it.unibas.ids.collector.TCPEventSubscriber;
 import it.unibas.ids.config.IdsModule;
-import it.unibas.ids.config.IdsProperties;
-import it.unibas.simulator.Main;
-import it.unibas.simulator.publisher.EventPublisher;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Scanner;
 
 @Slf4j
 class IDSMain {

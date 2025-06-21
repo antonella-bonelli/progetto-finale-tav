@@ -85,8 +85,6 @@ public class RuleBasedAnalyzer implements EventAnalyzer {
         stats.setLastEventTime(LocalDateTime.now());
         stats.incrementEventType(event.getType().toString());
 
-        log.debug("Analyzing event: {}", event.getType());
-
 //        // Skip whitelisted IPs
 //        if (rules.isWhitelisted(event.getUserId())) {
 //            log.debug("Skipping whitelisted IP: {}", event.getUserId());

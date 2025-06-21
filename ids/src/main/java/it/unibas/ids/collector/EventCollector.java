@@ -27,10 +27,7 @@ public class EventCollector implements EventSubscriber {
     @Override
     public void onEvent(Event event) {
         try {
-            log.debug("Received event: {}", event.getType());
-
             eventsReceived.incrementAndGet();
-
             eventAnalyzer.analyzeEvent(event);
 
         } catch (Exception e) {
@@ -49,7 +46,6 @@ public class EventCollector implements EventSubscriber {
                 log.warn("Parsed event is null");
                 return;
             }
-            log.debug("Received event: {}", event);
             this.onEvent(event);
         } catch (Exception e) {
             log.error("Error: parsing event JSON: {}", eventJson, e);

@@ -28,10 +28,6 @@ public class TCPEventSubscriber {
                 log.info("[IDS] Connected to simulator on {}:{}", host, port);
                 String line;
                 while ((line = in.readLine()) != null) {
-                    // Elabora/aggiungi evento al collector
-
-                    log.info("line: {}", line);
-
                     collector.onEventJson(line);
                 }
             } catch (Exception e) {

@@ -44,7 +44,7 @@ public class Alert {
     private Map<String, Object> metadata = new HashMap<>();
 
     @Builder.Default
-    private double confidenceScore = 0.0;
+    private Double confidenceScore = 0.0;
 
     private static String generateAlertId() {
         return "ALR-" + System.currentTimeMillis() + "-" + UUID.randomUUID().toString().substring(0, 8);
