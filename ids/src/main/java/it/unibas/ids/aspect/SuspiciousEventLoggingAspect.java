@@ -5,6 +5,7 @@ import it.unibas.common.model.Event;
 import it.unibas.common.model.EventType;
 import it.unibas.ids.alert.EmailService;
 import it.unibas.ids.model.Alert;
+import it.unibas.ids.model.ThreatLevel;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
@@ -45,7 +46,7 @@ public class SuspiciousEventLoggingAspect {
     public void sendCriticalNotifications(JoinPoint joinPoint) {
         Alert alert = (Alert) joinPoint.getArgs()[0];
 
-        if (true) {
+        if (alert.getThreatLevel() == ThreatLevel.CRITICAL) {
             log.error("🚨🚨 CRITICAL ALERT TRIGGERED 🚨🚨");
 
             // ✅ INVIA EMAIL MOCK

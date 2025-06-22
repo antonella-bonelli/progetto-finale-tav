@@ -3,7 +3,6 @@ package it.unibas.ids.alert;
 import com.google.inject.Singleton;
 import it.unibas.ids.model.Alert;
 import it.unibas.ids.model.AlertStatus;
-import it.unibas.ids.model.ThreatLevel;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -25,11 +24,6 @@ public class AlertManager {
         activeAlerts.put(alert.getAlertId(), alert);
         alertHistory.add(alert);
         totalAlerts.incrementAndGet();
-
-        // Notifica per alert critici
-        if (alert.getThreatLevel() == ThreatLevel.CRITICAL) {
-            notifyCriticalAlert(alert);
-        }
     }
 
     public List<Alert> getActiveAlerts() {
@@ -50,10 +44,5 @@ public class AlertManager {
             alert.setStatus(AlertStatus.RESOLVED);
             log.info("Alert resolved: {}", alertId);
         }
-    }
-
-    private void notifyCriticalAlert(Alert alert) {
-        log.warn("🚨 CRITICAL ALERT: {} from {}", alert.getDescription());
-        // ToDo: Implementare le notifiche (email)
     }
 }

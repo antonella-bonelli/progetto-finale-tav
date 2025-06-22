@@ -4,12 +4,14 @@ import it.unibas.common.interfaces.EventSubscriber;
 import it.unibas.common.model.Event;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+@Slf4j
 public class EventPublisher {
     private final BlockingQueue<Event> eventQueue;
     private final List<EventSubscriber> subscribers;
@@ -36,9 +38,9 @@ public class EventPublisher {
     public void start() {
         if (isRunning.compareAndSet(false, true)) {
             publisherExecutor.submit(this::publishingLoop);
-            System.out.println("EventPublisher started with queue size: " + maxQueueSize);
+            log.info("EventPublisher started with queue size: {}", maxQueueSize);
         } else {
-            System.out.println("EventPublisher is already running");
+            log.info("EventPublisher is already running");
         }
     }
 
@@ -49,8 +51,7 @@ public class EventPublisher {
                 if (!publisherExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
                     publisherExecutor.shutdownNow();
                 }
-                System.out.println("EventPublisher stopped. Published: " + publishedEvents.get() +
-                        ", Dropped: " + droppedEvents.get());
+                log.info("EventPublisher stopped. Published: {}, Dropped: {}", publishedEvents.get(), droppedEvents.get());
             } catch (InterruptedException e) {
                 publisherExecutor.shutdownNow();
                 Thread.currentThread().interrupt();
@@ -60,18 +61,18 @@ public class EventPublisher {
 
     public boolean publishEvent(Event event) {
         if (event == null) {
-            System.err.println("Null event should not be published");
+            log.error("Null event should not be published");
             return false;
         }
         if (!isRunning.get()) {
-            System.err.println("Cannot publish event: EventPublisher is not running");
+            log.error("Cannot publish event: EventPublisher is not running");
             return false;
         }
 
         boolean added = eventQueue.offer(event);
         if (!added) {
             droppedEvents.incrementAndGet();
-            System.err.println("Event queue is full! Dropped event: " + event.getType());
+            log.error("Event queue is full! Dropped event: {}", event.getType());
         }
         return added;
     }
@@ -79,13 +80,13 @@ public class EventPublisher {
     public void subscribe(EventSubscriber subscriber) {
         if (subscriber != null && !subscribers.contains(subscriber)) {
             subscribers.add(subscriber);
-            System.out.println("Subscriber added: " + subscriber.getClass().getSimpleName());
+            log.info("Subscriber added: {}", subscriber.getClass().getSimpleName());
         }
     }
 
     public void unsubscribe(EventSubscriber subscriber) {
         if (subscribers.remove(subscriber)) {
-            System.out.println("Subscriber removed: " + subscriber.getClass().getSimpleName());
+            log.info("Subscriber removed: {}", subscriber.getClass().getSimpleName());
         }
     }
 
@@ -110,7 +111,7 @@ public class EventPublisher {
     }
 
     private void publishingLoop() {
-        System.out.println("EventPublisher publishing loop started");
+        log.info("EventPublisher publishing loop started");
 
         while (isRunning.get() || !eventQueue.isEmpty()) {
             try {
@@ -122,16 +123,16 @@ public class EventPublisher {
                     publishedEvents.incrementAndGet();
 
                     if (publishedEvents.get() % 100 == 0) {
-                        System.out.println("Published " + publishedEvents.get() + " events. Queue size: " + eventQueue.size());
+                        log.info("Published {} events. Queue size: {}", publishedEvents.get(), eventQueue.size());
                     }
                 }
 
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                System.out.println("EventPublisher was interrupted");
+                log.info("EventPublisher was interrupted");
                 break;
             } catch (Exception e) {
-                System.err.println("Error in publishing loop: " + e.getMessage());
+                log.error("Error in publishing loop: {}", e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -139,12 +140,12 @@ public class EventPublisher {
         // Process remaining events in queue
         processRemainingEvents();
 
-        System.out.println("EventPublisher publishing loop finished");
+        log.info("EventPublisher publishing loop finished");
     }
 
     private void notifySubscribers(Event event) {
         if (subscribers.isEmpty()) {
-            System.err.println("No subscribers registered for event: " + event.getType());
+            log.error("No subscribers registered for event: {}", event.getType());
             return;
         }
 
@@ -152,8 +153,7 @@ public class EventPublisher {
             try {
                 subscriber.onEvent(event);
             } catch (Exception e) {
-                System.err.println("Error notifying subscriber " + subscriber.getClass().getSimpleName() +
-                        ": " + e.getMessage());
+                log.error("Error notifying subscriber {}: {}", subscriber.getClass().getSimpleName(), e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -170,7 +170,7 @@ public class EventPublisher {
         }
 
         if (processed > 0) {
-            System.out.println("Processed " + processed + " remaining events during shutdown");
+            log.info("Processed {} remaining events during shutdown", processed);
         }
     }
 

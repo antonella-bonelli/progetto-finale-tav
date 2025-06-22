@@ -1,5 +1,7 @@
 package it.unibas.ids.analyzer;
 
+import it.unibas.common.model.EventType;
+import it.unibas.ids.model.ThreatLevel;
 import lombok.Builder;
 import lombok.Data;
 
@@ -22,11 +24,11 @@ public class AnalysisStats {
 
     // Statistiche per tipo di evento
     @Builder.Default
-    private Map<String, Long> eventTypeCount = new HashMap<>();
+    private Map<EventType, Long> eventTypeCount = new HashMap<>();
 
     // Statistiche per livello di minaccia
     @Builder.Default
-    private Map<String, Long> threatLevelCount = new HashMap<>();
+    private Map<ThreatLevel, Long> threatLevelCount = new HashMap<>();
 
     // Performance metrics
     @Builder.Default
@@ -57,11 +59,11 @@ public class AnalysisStats {
         averageAnalysisTimeMs = (double) totalAnalysisTimeMs / eventsAnalyzed;
     }
 
-    public void incrementEventType(String eventType) {
+    public void incrementEventType(EventType eventType) {
         eventTypeCount.merge(eventType, 1L, Long::sum);
     }
 
-    public void incrementThreatLevel(String threatLevel) {
+    public void incrementThreatLevel(ThreatLevel threatLevel) {
         threatLevelCount.merge(threatLevel, 1L, Long::sum);
     }
 

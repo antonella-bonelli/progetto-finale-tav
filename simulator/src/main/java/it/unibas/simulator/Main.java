@@ -22,34 +22,6 @@ public class Main {
     private static Thread mainThread;
     private static TCPSocketPublisher tcpPublisher;
 
-
-    public static EventPublisher getPublisher() {
-        try {
-            if (publisher != null) {
-                return publisher;
-            }
-            log.warn("Publisher not initialized!");
-            return null;
-        } catch (Exception e) {
-            log.error("Error: ", e);
-            Thread.currentThread().interrupt();
-        }
-        return null;
-    }
-
-    public static RandomEventGenerator getGenerator() {
-        try {
-            if (generator != null) {
-                return generator;
-            }
-            log.warn("Generator not initialized!");
-            return null;
-        } catch (Exception e) {
-            Thread.currentThread().interrupt();
-        }
-        return null;
-    }
-
     public static boolean isInitialized() {
         return initialized.get();
     }
@@ -129,7 +101,6 @@ public class Main {
                 runDaemonMode();
             } else if (args.length > 0) {
                 log.error("Error: wrong args");
-                return;
             } else {
                 runMonitoringMode(30);
             }

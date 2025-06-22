@@ -34,14 +34,9 @@ public class Alert {
     @NonNull
     private String userId;
 
-    @NonNull
-    private List<Event> relatedEvents;
 
     @Builder.Default
     private AlertStatus status = AlertStatus.ACTIVE;
-
-    @Builder.Default
-    private Map<String, Object> metadata = new HashMap<>();
 
     @Builder.Default
     private Double confidenceScore = 0.0;

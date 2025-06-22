@@ -14,7 +14,6 @@ public class RandomEventGenerator extends AbstractEventGenerator {
             "alice.johnson", "bob.wilson", "charlie.brown", "diana.prince", "eve.adams"
     );
 
-
     private static final List<String> SAMPLE_FILES = List.of(
             "/home/user/documents/report.pdf", "/var/log/system.log", "/tmp/temp.txt",
             "/etc/passwd", "/etc/shadow", "/root/.ssh/id_rsa", "/var/www/config.php",

@@ -12,7 +12,6 @@ public class ConsoleEventSubscriber implements EventSubscriber {
     private final boolean showAllEvents;
     private final EventSeverity minimumSeverity;
     private long eventsDisplayed = 0;
-
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 
     public ConsoleEventSubscriber(boolean showAllEvents, EventSeverity minimumSeverity) {

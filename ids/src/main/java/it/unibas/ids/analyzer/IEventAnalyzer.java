@@ -2,13 +2,13 @@ package it.unibas.ids.analyzer;
 
 import it.unibas.common.model.Event;
 
-public interface EventAnalyzer {
+public interface IEventAnalyzer {
 
     void analyzeEvent(Event event);
-
     void updateRules(AnalysisRules rules);
-
     AnalysisStats getStats();
+    String getAnalyzerName();
+    String getDescription();
+    EAnalysisType getAnalysisType();
 
-    EventAnalyzer clone();
 }
