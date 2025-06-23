@@ -2,7 +2,6 @@ package it.unibas.ids.aspect;
 
 import com.google.inject.Inject;
 import it.unibas.common.model.Event;
-import it.unibas.common.model.EventType;
 import it.unibas.ids.alert.EmailService;
 import it.unibas.ids.model.Alert;
 import it.unibas.ids.model.ThreatLevel;
@@ -27,15 +26,6 @@ public class SuspiciousEventLoggingAspect {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-    // Lista degli EventType sospetti
-    private static final java.util.Set<EventType> SUSPICIOUS_EVENTS = java.util.Set.of(
-            EventType.UNAUTHORIZED_FILE_ACCESS,
-            EventType.SENSITIVE_FILE_ACCESS,
-            EventType.SUSPICIOUS_NETWORK_ACTIVITY,
-            EventType.SUSPICIOUS_LOGIN,
-            EventType.OFF_HOURS_LOGIN
-    );
-
     // Pointcut che intercetta ogni chiamata a analyzeEvent(Event)
     @Pointcut("execution(* it.unibas.ids.analyzer.IEventAnalyzer.analyzeEvent(it.unibas.common.model.Event)) && args(event)")
     public void analyzeEventCall(Event event) {
@@ -58,17 +48,16 @@ public class SuspiciousEventLoggingAspect {
             mainView.appendEventLog(message);
         }
 
-        // Logging su file solo per eventi sospetti
-        if (SUSPICIOUS_EVENTS.contains(event.getType())) {
-            log.warn("Evento sospetto rilevato: {} dall'utente {} (dettagli: {})",
-                    event.getType(), event.getUserId(), event);
-        }
+        log.warn("Evento sospetto rilevato: {} dall'utente {} (dettagli: {})",event.getType(), event.getUserId(), event);
+
     }
 
     @AfterReturning("execution(* it.unibas.ids.alert.AlertManager.addAlert(..))")
     public void sendCriticalNotifications(JoinPoint joinPoint) {
         Alert alert = (Alert) joinPoint.getArgs()[0];
-
+        if (mainView != null) {
+            mainView.addAlert(alert);
+        }
         if (alert.getThreatLevel() == ThreatLevel.CRITICAL) {
             log.error("🚨🚨 CRITICAL ALERT TRIGGERED 🚨🚨");
 

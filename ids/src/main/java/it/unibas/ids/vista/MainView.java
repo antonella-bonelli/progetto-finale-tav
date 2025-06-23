@@ -1,5 +1,6 @@
 package it.unibas.ids.vista;
 
+import it.unibas.ids.model.Alert;
 import it.unibas.ids.model.Modello;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -8,8 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.time.format.DateTimeFormatter;
 
-import static it.unibas.ids.Costanti.*;
+import static it.unibas.ids.Costanti.AZIONE_START;
+import static it.unibas.ids.Costanti.AZIONE_STOP;
 
 @Slf4j
 @Singleton
@@ -24,6 +27,7 @@ public class MainView extends JPanel implements IMainView {
     private JTextArea eventLogArea;
     private JLabel statusLabel;
     private JLabel eventCountLabel;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     @Inject()
     private MainView(Modello model) {
@@ -76,7 +80,7 @@ public class MainView extends JPanel implements IMainView {
         eventLogArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
 
         leftPanel.add(new JScrollPane(eventLogArea), BorderLayout.CENTER);
-        leftPanel.add(createFilterPanel(), BorderLayout.NORTH);
+        //leftPanel.add(createFilterPanel(), BorderLayout.NORTH);
 
         // === DESTRA: Alert e Statistiche ===
         JPanel rightPanel = new JPanel(new BorderLayout());
@@ -85,7 +89,7 @@ public class MainView extends JPanel implements IMainView {
         JPanel alertPanel = new JPanel(new BorderLayout());
         alertPanel.setBorder(BorderFactory.createTitledBorder("🚨 Active Alerts"));
 
-        String[] alertColumns = {"Time", "Severity", "Source", "Message", "Status"};
+        String[] alertColumns = {"Id","Time", "Severity","Type", "Status"};
         alertTableModel = new DefaultTableModel(alertColumns, 0);
         alertTable = new JTable(alertTableModel);
         alertTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -105,20 +109,20 @@ public class MainView extends JPanel implements IMainView {
         return mainSplit;
     }
 
-    private JPanel createFilterPanel() {
-        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-
-        filterPanel.add(new JLabel("Filtro:"));
-        filterPanel.add(new JComboBox<>(new String[]{"Tutti", "Login", "File", "Network"}));
-
-        filterPanel.add(new JLabel("Severità:"));
-        filterPanel.add(new JComboBox<>(new String[]{"Tutti", "LOW", "MEDIUM", "HIGH", "CRITICAL"}));
-
-        JButton applyFilter = new JButton("Apply");
-        filterPanel.add(applyFilter);
-
-        return filterPanel;
-    }
+//    private JPanel createFilterPanel() {
+//        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+//
+//        filterPanel.add(new JLabel("Filtro:"));
+//        filterPanel.add(new JComboBox<>(new String[]{"Tutti", "Login", "File", "Network"}));
+//
+//        filterPanel.add(new JLabel("Severità:"));
+//        filterPanel.add(new JComboBox<>(new String[]{"Tutti", "LOW", "MEDIUM", "HIGH", "CRITICAL"}));
+//
+//        JButton applyFilter = new JButton("Apply");
+//        filterPanel.add(applyFilter);
+//
+//        return filterPanel;
+//    }
 
     private JPanel createStatsPanel() {
         JPanel statsPanel = new JPanel(new GridLayout(2, 2, 5, 5));
@@ -152,6 +156,28 @@ public class MainView extends JPanel implements IMainView {
     public void appendEventLog(String message) {
         eventLogArea.append(message + "\n");
         eventLogArea.setCaretPosition(eventLogArea.getDocument().getLength()); // Scroll to bottom
+    }
+
+    public void addAlert(Alert alert) {
+        SwingUtilities.invokeLater(() -> {
+            Object[] rowData = {
+                    alert.getAlertId(),
+                    alert.getTimestamp().format(formatter),
+                    alert.getThreatLevel().toString(),
+                    alert.getAlertType(),
+                    alert.getStatus().toString()
+            };
+
+            alertTableModel.addRow(rowData);
+
+            // Auto-scroll alla nuova riga
+            int lastRow = alertTableModel.getRowCount() - 1;
+            alertTable.scrollRectToVisible(alertTable.getCellRect(lastRow, 0, true));
+            alertTable.setRowSelectionInterval(lastRow, lastRow);
+
+            // Log dell'aggiunta
+            log.debug("Alert aggiunto alla tabella: {} - {}", alert.getAlertId(), alert.getThreatLevel());
+        });
     }
 
 }
