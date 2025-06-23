@@ -7,5 +7,5 @@ import javax.swing.*;
 @ImplementedBy(Controllo.class)
 public interface IControllo {
 
-    public Action getAction(String nome);
+    Action getAction(String nome);
 }

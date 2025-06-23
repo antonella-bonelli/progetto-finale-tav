@@ -14,17 +14,11 @@ import java.awt.event.ActionEvent;
 @Singleton
 @Slf4j
 public class StartSimulationAction extends AbstractAction {
-    private IControllo controllo;
-    private IVista vista;
-    private IMainView mainView;
     private EventCollector collector;
     private TCPEventSubscriber tcpSubscriber;
 
     @Inject()
-    public StartSimulationAction(IControllo controllo, IVista vista, IMainView mainView, EventCollector collector, TCPEventSubscriber tcpSubscriber) {
-        this.controllo = controllo;
-        this.vista = vista;
-        this.mainView = mainView;
+    public StartSimulationAction(EventCollector collector, TCPEventSubscriber tcpSubscriber) {
         this.collector = collector;
         this.tcpSubscriber = tcpSubscriber;
         this.putValue(Action.NAME, "Avvia simulazione");

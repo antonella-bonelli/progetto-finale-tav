@@ -1,6 +1,10 @@
 package it.unibas.ids.vista;
 
 import it.unibas.ids.model.Alert;
+import it.unibas.common.model.Event;
+import it.unibas.common.model.FileAccessEvent;
+import it.unibas.common.model.LoginEvent;
+import it.unibas.common.model.NetworkEvent;
 import it.unibas.ids.model.Modello;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -29,11 +33,13 @@ public class MainView extends JPanel implements IMainView {
     private JLabel eventCountLabel;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
+    private JComboBox<String> typeFilterCombo;
+    private JComboBox<String> severityFilterCombo;
+
     @Inject()
     private MainView(Modello model) {
         this.model = model;
         this.init();
-
     }
 
     @Override
@@ -80,7 +86,7 @@ public class MainView extends JPanel implements IMainView {
         eventLogArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
 
         leftPanel.add(new JScrollPane(eventLogArea), BorderLayout.CENTER);
-        //leftPanel.add(createFilterPanel(), BorderLayout.NORTH);
+        leftPanel.add(createFilterPanel(), BorderLayout.NORTH);
 
         // === DESTRA: Alert e Statistiche ===
         JPanel rightPanel = new JPanel(new BorderLayout());
@@ -109,20 +115,19 @@ public class MainView extends JPanel implements IMainView {
         return mainSplit;
     }
 
-//    private JPanel createFilterPanel() {
-//        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-//
-//        filterPanel.add(new JLabel("Filtro:"));
-//        filterPanel.add(new JComboBox<>(new String[]{"Tutti", "Login", "File", "Network"}));
-//
-//        filterPanel.add(new JLabel("Severità:"));
-//        filterPanel.add(new JComboBox<>(new String[]{"Tutti", "LOW", "MEDIUM", "HIGH", "CRITICAL"}));
-//
-//        JButton applyFilter = new JButton("Apply");
-//        filterPanel.add(applyFilter);
-//
-//        return filterPanel;
-//    }
+    private JPanel createFilterPanel() {
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+
+        filterPanel.add(new JLabel("Filtro:"));
+        typeFilterCombo = new JComboBox<>(new String[]{"Tutti", "Login", "File", "Network"});
+        filterPanel.add(typeFilterCombo);
+
+        filterPanel.add(new JLabel("Severità:"));
+        severityFilterCombo = new JComboBox<>(new String[]{"Tutti", "LOW", "MEDIUM", "HIGH", "CRITICAL"});
+        filterPanel.add(severityFilterCombo);
+
+        return filterPanel;
+    }
 
     private JPanel createStatsPanel() {
         JPanel statsPanel = new JPanel(new GridLayout(2, 2, 5, 5));
@@ -153,9 +158,40 @@ public class MainView extends JPanel implements IMainView {
         }
     }
 
-    public void appendEventLog(String message) {
-        eventLogArea.append(message + "\n");
+    public void appendEventLog(Event event, String message) {
+        updateEventLogArea(event, message);
+    }
+
+    private void updateEventLogArea(Event event, String message) {
+        String selectedType = (String) typeFilterCombo.getSelectedItem();
+        String selectedSeverity = (String) severityFilterCombo.getSelectedItem();
+        //log.info("selectedType: {} - selectedSeverity: {}", selectedType, selectedSeverity);
+
+        // Normalizza i valori (gestione eventuali null e maiuscole/minuscole)
+        String typeFilter = selectedType != null ? selectedType.trim().toUpperCase() : "TUTTI";
+        String severityFilter = selectedSeverity != null ? selectedSeverity.trim().toUpperCase() : "TUTTI";
+
+        // Filtra per tipo evento
+        boolean matchesType = typeFilter.equals("TUTTI") || eventTypeMatches(selectedType, event);
+
+        // Filtra per severità (usando name in maiuscolo per sicurezza)
+        boolean matchesSeverity = severityFilter.equals("TUTTI") ||
+                event.getSeverity().name().equalsIgnoreCase(severityFilter);
+
+        if (matchesType && matchesSeverity && message != null && !message.trim().isBlank()) {
+            eventLogArea.append(message + "\n");
+        }
+
         eventLogArea.setCaretPosition(eventLogArea.getDocument().getLength()); // Scroll to bottom
+    }
+
+    private boolean eventTypeMatches(String filter, Event event) {
+        return switch (filter) {
+            case "Login" -> event instanceof LoginEvent;
+            case "File" -> event instanceof FileAccessEvent;
+            case "Network" -> event instanceof NetworkEvent;
+            default -> true;
+        };
     }
 
     public void addAlert(Alert alert) {
