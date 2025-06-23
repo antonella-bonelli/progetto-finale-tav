@@ -1,13 +1,13 @@
 package it.unibas.simulator.publisher;
 
 
-import it.unibas.common.interfaces.EventSubscriber;
+import it.unibas.common.interfaces.IEventSubscriber;
 import it.unibas.common.model.Event;
 import it.unibas.common.model.EventSeverity;
 
 import java.time.format.DateTimeFormatter;
 
-public class ConsoleEventSubscriber implements EventSubscriber {
+public class ConsoleEventSubscriber implements IEventSubscriber {
 
     private final boolean showAllEvents;
     private final EventSeverity minimumSeverity;

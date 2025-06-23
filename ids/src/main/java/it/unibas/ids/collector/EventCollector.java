@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import it.unibas.ids.analyzer.AnalysisContext;
 import it.unibas.ids.analyzer.IEventAnalyzer;
 import it.unibas.common.model.Event;
-import it.unibas.common.interfaces.EventSubscriber;
+import it.unibas.common.interfaces.IEventSubscriber;
 import com.google.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @Slf4j
 @Singleton
-public class EventCollector implements EventSubscriber {
+public class EventCollector implements IEventSubscriber {
     private final IEventAnalyzer eventAnalyzer;
     private final AnalysisContext analysisContext;
     private final AtomicLong eventsReceived = new AtomicLong(0);

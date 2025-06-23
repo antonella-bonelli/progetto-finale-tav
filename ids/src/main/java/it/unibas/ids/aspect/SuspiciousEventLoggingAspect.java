@@ -30,7 +30,7 @@ public class SuspiciousEventLoggingAspect {
     );
 
     // Pointcut che intercetta ogni chiamata a analyzeEvent(Event)
-    @Pointcut("execution(* it.unibas.ids.analyzer.EventAnalyzer.analyzeEvent(it.unibas.common.model.Event)) && args(event)")
+    @Pointcut("execution(* it.unibas.ids.analyzer.IEventAnalyzer.analyzeEvent(it.unibas.common.model.Event)) && args(event)")
     public void analyzeEventCall(Event event) {
     }
 

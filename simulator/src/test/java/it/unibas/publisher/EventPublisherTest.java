@@ -1,6 +1,6 @@
 package it.unibas.publisher;
 
-import it.unibas.common.interfaces.EventSubscriber;
+import it.unibas.common.interfaces.IEventSubscriber;
 import it.unibas.simulator.publisher.EventPublisher;
 import it.unibas.common.model.Event;
 import it.unibas.common.model.LoginEvent;
@@ -181,7 +181,7 @@ public class EventPublisherTest {
         CountDownLatch eventLatch = new CountDownLatch(1);
         AtomicReference<Event> receivedEvent = new AtomicReference<>();
 
-        EventSubscriber waitingSubscriber = event -> {
+        IEventSubscriber waitingSubscriber = event -> {
             receivedEvent.set(event);
             eventLatch.countDown();
         };
@@ -267,12 +267,12 @@ public class EventPublisherTest {
         CountDownLatch goodSubscriberLatch = new CountDownLatch(1);
         AtomicInteger exceptionCount = new AtomicInteger(0);
 
-        EventSubscriber faultySubscriber = event -> {
+        IEventSubscriber faultySubscriber = event -> {
             exceptionCount.incrementAndGet();
             throw new RuntimeException("Test exception");
         };
 
-        EventSubscriber goodSubscriber = event -> {
+        IEventSubscriber goodSubscriber = event -> {
             goodSubscriberLatch.countDown();
         };
 
@@ -401,7 +401,7 @@ public class EventPublisherTest {
         CountDownLatch eventsLatch = new CountDownLatch(eventCount);
         AtomicInteger processedCount = new AtomicInteger(0);
 
-        EventSubscriber countingSubscriber = event -> {
+        IEventSubscriber countingSubscriber = event -> {
             processedCount.incrementAndGet();
             eventsLatch.countDown();
         };
@@ -490,12 +490,12 @@ public class EventPublisherTest {
         CountDownLatch goodSubscriberLatch = new CountDownLatch(eventCount);
         AtomicInteger exceptionCount = new AtomicInteger(0);
 
-        EventSubscriber faultySubscriber = event -> {
+        IEventSubscriber faultySubscriber = event -> {
             exceptionCount.incrementAndGet();
             throw new RuntimeException("Subscriber error #" + exceptionCount.get());
         };
 
-        EventSubscriber goodSubscriber = event -> goodSubscriberLatch.countDown();
+        IEventSubscriber goodSubscriber = event -> goodSubscriberLatch.countDown();
 
         publisher.subscribe(faultySubscriber);
         publisher.subscribe(goodSubscriber);
@@ -543,7 +543,7 @@ public class EventPublisherTest {
                 .build();
     }
 
-    private static class TestEventSubscriber implements EventSubscriber {
+    private static class TestEventSubscriber implements IEventSubscriber {
         private final List<Event> receivedEvents = Collections.synchronizedList(new ArrayList<>());
         private final CountDownLatch latch;
 
@@ -573,7 +573,7 @@ public class EventPublisherTest {
         }
     }
 
-    private static class CountingEventSubscriber implements EventSubscriber {
+    private static class CountingEventSubscriber implements IEventSubscriber {
         private final AtomicInteger count = new AtomicInteger(0);
 
         @Override

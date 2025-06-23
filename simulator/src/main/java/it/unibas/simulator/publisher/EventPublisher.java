@@ -1,6 +1,6 @@
 package it.unibas.simulator.publisher;
 
-import it.unibas.common.interfaces.EventSubscriber;
+import it.unibas.common.interfaces.IEventSubscriber;
 import it.unibas.common.model.Event;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 public class EventPublisher {
     private final BlockingQueue<Event> eventQueue;
-    private final List<EventSubscriber> subscribers;
+    private final List<IEventSubscriber> subscribers;
     private final ExecutorService publisherExecutor;
     private final AtomicBoolean isRunning = new AtomicBoolean(false);
     private final AtomicLong publishedEvents = new AtomicLong(0);
@@ -77,14 +77,14 @@ public class EventPublisher {
         return added;
     }
 
-    public void subscribe(EventSubscriber subscriber) {
+    public void subscribe(IEventSubscriber subscriber) {
         if (subscriber != null && !subscribers.contains(subscriber)) {
             subscribers.add(subscriber);
             log.info("Subscriber added: {}", subscriber.getClass().getSimpleName());
         }
     }
 
-    public void unsubscribe(EventSubscriber subscriber) {
+    public void unsubscribe(IEventSubscriber subscriber) {
         if (subscribers.remove(subscriber)) {
             log.info("Subscriber removed: {}", subscriber.getClass().getSimpleName());
         }
@@ -149,7 +149,7 @@ public class EventPublisher {
             return;
         }
 
-        for (EventSubscriber subscriber : subscribers) {
+        for (IEventSubscriber subscriber : subscribers) {
             try {
                 subscriber.onEvent(event);
             } catch (Exception e) {

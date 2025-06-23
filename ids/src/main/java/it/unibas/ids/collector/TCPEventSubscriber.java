@@ -2,6 +2,7 @@ package it.unibas.ids.collector;
 
 
 import com.google.inject.Inject;
+import it.unibas.common.interfaces.IEventSubscriber;
 import it.unibas.ids.config.IdsProperties;
 import lombok.extern.slf4j.Slf4j;
 

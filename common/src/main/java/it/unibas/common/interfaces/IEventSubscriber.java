@@ -2,7 +2,7 @@ package it.unibas.common.interfaces;
 
 import it.unibas.common.model.Event;
 
-public interface EventSubscriber {
+public interface IEventSubscriber {
 
     void onEvent(Event event);
 

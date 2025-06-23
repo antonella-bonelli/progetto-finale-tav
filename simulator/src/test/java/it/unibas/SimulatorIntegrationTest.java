@@ -5,7 +5,7 @@ import it.unibas.simulator.generator.RandomEventGenerator;
 import it.unibas.common.model.Event;
 import it.unibas.common.model.EventSeverity;
 import it.unibas.simulator.publisher.EventPublisher;
-import it.unibas.common.interfaces.EventSubscriber;
+import it.unibas.common.interfaces.IEventSubscriber;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -273,7 +273,7 @@ public class SimulatorIntegrationTest {
     }
 
     // Helper class for integration testing
-    private static class TestIntegrationSubscriber implements EventSubscriber {
+    private static class TestIntegrationSubscriber implements IEventSubscriber {
         private final List<Event> receivedEvents = Collections.synchronizedList(new ArrayList<>());
         private final AtomicInteger eventCount = new AtomicInteger(0);
 
