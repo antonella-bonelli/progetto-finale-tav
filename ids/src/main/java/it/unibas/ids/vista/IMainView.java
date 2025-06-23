@@ -6,6 +6,7 @@ import javax.swing.*;
 
 @ImplementedBy(MainView.class)
 public interface IMainView {
-    public void init();
-    public void setButtonAction(String button, Action action);
+    void init();
+    void setButtonAction(String button, Action action);
+    void appendEventLog(String message);
 }

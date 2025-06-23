@@ -15,14 +15,12 @@ import java.util.concurrent.atomic.AtomicLong;
 @Slf4j
 @Singleton
 public class EventCollector implements IEventSubscriber {
-    private final IEventAnalyzer eventAnalyzer;
     private final AnalysisContext analysisContext;
     private final AtomicLong eventsReceived = new AtomicLong(0);
     private final ObjectMapper objectMapper = ObjectMapperFactory.create();
 
     @Inject
-    public EventCollector(IEventAnalyzer eventAnalyzer, AnalysisContext analysisContext) {
-        this.eventAnalyzer = eventAnalyzer;
+    public EventCollector(AnalysisContext analysisContext) {
         this.analysisContext = analysisContext;
     }
 
@@ -30,7 +28,6 @@ public class EventCollector implements IEventSubscriber {
     public void onEvent(Event event) {
         try {
             eventsReceived.incrementAndGet();
-            //eventAnalyzer.analyzeEvent(event);
             // Analizzo l'evento in base alla strategia selezionata
             analysisContext.analyzeEvent(event);
         } catch (Exception e) {

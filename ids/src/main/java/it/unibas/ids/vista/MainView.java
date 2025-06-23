@@ -149,4 +149,9 @@ public class MainView extends JPanel implements IMainView {
         }
     }
 
+    public void appendEventLog(String message) {
+        eventLogArea.append(message + "\n");
+        eventLogArea.setCaretPosition(eventLogArea.getDocument().getLength()); // Scroll to bottom
+    }
+
 }

@@ -15,7 +15,7 @@ import java.util.Map;
 @Slf4j
 public class Controllo implements IControllo {
 
-    private Map<String, Action> mapAction = new HashMap<>();
+    private final Map<String, Action> mapAction = new HashMap<>();
 
     @Override
     public Action getAction(String nome) {
@@ -56,4 +56,5 @@ public class Controllo implements IControllo {
         log.info("Action added: {}", name);
         this.mapAction.put(name, action);
     }
+
 }
