@@ -70,8 +70,8 @@ public class SimpleAnalyzer extends AAnalyzer {
 
     @Override
     public IEventAnalyzer clone() {
-        SimpleAnalyzer cloned = new SimpleAnalyzer(super.alertManager);
-        cloned.rules = this.rules.clone();
+        IEventAnalyzer cloned = super.clone();
+        cloned.updateRules(this.rules.clone());
         return cloned;
     }
 

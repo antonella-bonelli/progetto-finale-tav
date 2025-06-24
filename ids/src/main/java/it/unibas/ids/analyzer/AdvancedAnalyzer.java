@@ -100,13 +100,13 @@ public class AdvancedAnalyzer extends AAnalyzer {
 
     @Override
     public EAnalysisType getAnalysisType() {
-        return EAnalysisType.RULE_BASED;
+        return EAnalysisType.ADVANCED;
     }
 
     @Override
     public IEventAnalyzer clone() {
-        AdvancedAnalyzer cloned = new AdvancedAnalyzer(alertManager);
-        cloned.rules = this.rules.clone();
+        IEventAnalyzer cloned = super.clone();
+        cloned.updateRules(this.rules.clone());
         return cloned;
     }
 

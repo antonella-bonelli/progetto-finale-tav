@@ -17,7 +17,7 @@ public class AnalysisContext {
     public AnalysisContext(AdvancedAnalyzer advancedAnalyzer, SimpleAnalyzer simpleAnalyzer) {
         // Inizializza mappa delle strategie disponibili
         this.availableStrategies = Map.of(
-                EAnalysisType.RULE_BASED, advancedAnalyzer,
+                EAnalysisType.ADVANCED, advancedAnalyzer,
                 EAnalysisType.SIMPLE, simpleAnalyzer
         );
 

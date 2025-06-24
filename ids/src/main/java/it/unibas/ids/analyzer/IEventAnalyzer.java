@@ -5,6 +5,7 @@ import it.unibas.ids.alert.AlertManager;
 
 public interface IEventAnalyzer {
 
+    IEventAnalyzer clone();
     void analyzeEvent(Event event);
     AnalysisRules getRules();
     void updateRules(AnalysisRules rules);

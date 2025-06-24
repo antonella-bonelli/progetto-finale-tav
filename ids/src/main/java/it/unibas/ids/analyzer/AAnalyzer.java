@@ -65,4 +65,12 @@ public abstract class AAnalyzer implements IEventAnalyzer, Cloneable {
         return getAnalysisType().getDescription();
     }
 
+    @Override
+    public IEventAnalyzer clone() {
+        try {
+            return (IEventAnalyzer) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException("Clone non supportato", e);
+        }
+    }
 }

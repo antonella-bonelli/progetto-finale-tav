@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum EAnalysisType {
-    RULE_BASED("Rule-Based Analysis", "Analisi basata su regole predefinite"),
-    SIMPLE("Simplified Analysis", "Analisi semplificata su tipo e livello");
+    ADVANCED("Advanced Analysis", "Analisi avanzata"),
+    SIMPLE("Simplified Analysis", "Analisi semplificata");
 
     private final String displayName;
     private final String description;
