@@ -41,19 +41,5 @@ public class CloneConfigAction extends AbstractAction {
                 eventAnalyzer
         );
         dialog.setVisible(true);
-
-        /*IEventAnalyzer cloned = null;
-        switch (eventAnalyzer.getAnalysisType()) {
-            case SIMPLE -> {
-                SimpleAnalyzer analyzer = (SimpleAnalyzer) eventAnalyzer;
-                cloned = analyzer.clone();
-            }
-            case RULE_BASED -> {
-                RuleBasedAnalyzer analyzer = (RuleBasedAnalyzer) eventAnalyzer;
-                cloned = analyzer.clone();
-            }
-        }
-        log.info("Original configuration: {}", eventAnalyzer.toString());
-        log.info("Cloned configuration: {}", cloned.toString());*/
     }
 }

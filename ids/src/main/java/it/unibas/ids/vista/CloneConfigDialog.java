@@ -293,7 +293,7 @@ public class CloneConfigDialog extends JDialog {
             analyzer.updateRules(rules);
         }
 
-        log.debug("💀 Analyzer: {}", analyzer.getAnalyzerName());
+        log.debug(" Analyzer: {}", analyzer.getAnalyzerName());
         // Svuota anche gli allarmi precedenti nell'AlertManager dell'analyzer
         analyzer.getManager().clearAll();
 
@@ -309,7 +309,7 @@ public class CloneConfigDialog extends JDialog {
 
         // Recupera e mostra Alert
         List<Alert> alerts = analyzer.getManager().getActiveAlerts();
-        log.debug("💩 ci sono {} allarmi", alerts.size());
+        log.debug("ci sono {} allarmi", alerts.size());
         for (Alert alert : alerts) {
             alertTableModel.addRow(new Object[]{
                     alert.getAlertId(),

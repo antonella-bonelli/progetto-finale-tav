@@ -6,12 +6,12 @@ plugins {
 
 
 application {
-    mainClass.set("it.unibas.ids.IDSMain")
+    mainClass.set("it.unibas.ids.controllo.Controllo")
 }
 
 tasks.jar {
     manifest {
-        attributes["Main-Class"] = "it.unibas.ids.IDSMain"
+        attributes["Main-Class"] = "it.unibas.ids.controllo.Controllo"
     }
 }
 
