@@ -14,15 +14,15 @@ public class AnalysisContext {
     private final Map<EAnalysisType, IEventAnalyzer> availableStrategies;
 
     @Inject
-    public AnalysisContext(RuleBasedAnalyzer ruleBasedAnalyzer, SimpleAnalyzer simpleAnalyzer) {
+    public AnalysisContext(AdvancedAnalyzer advancedAnalyzer, SimpleAnalyzer simpleAnalyzer) {
         // Inizializza mappa delle strategie disponibili
         this.availableStrategies = Map.of(
-                EAnalysisType.RULE_BASED, ruleBasedAnalyzer,
+                EAnalysisType.RULE_BASED, advancedAnalyzer,
                 EAnalysisType.SIMPLE, simpleAnalyzer
         );
 
         // Strategia di default
-        this.currentStrategy = ruleBasedAnalyzer;
+        this.currentStrategy = advancedAnalyzer;
         log.info("📊 AnalysisContext inizializzato con la strategia di default: {}", currentStrategy.getAnalyzerName());
     }
 

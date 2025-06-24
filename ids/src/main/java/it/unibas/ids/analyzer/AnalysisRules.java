@@ -1,5 +1,6 @@
 package it.unibas.ids.analyzer;
 
+import it.unibas.common.model.EventSeverity;
 import it.unibas.common.model.EventType;
 import lombok.Builder;
 import lombok.Data;
@@ -15,17 +16,22 @@ public class AnalysisRules implements Cloneable {
     @Builder.Default
     private Map<EventType, Integer> eventThresholds = new HashMap<>();
 
+    // Severità di eventi che generano sempre alert
+    @Builder.Default
+    private Set<EventSeverity> levels = Set.of(
+            EventSeverity.LOW,
+            EventSeverity.MEDIUM,
+            EventSeverity.HIGH,
+            EventSeverity.CRITICAL
+    );
+
     // Tipi di eventi che generano sempre alert
     @Builder.Default
-    private Set<EventType> alwaysAlertEvents = Set.of(
+    private Set<EventType> types = Set.of(
             EventType.UNAUTHORIZED_FILE_ACCESS,
             EventType.SENSITIVE_FILE_ACCESS,
             EventType.SUSPICIOUS_NETWORK_ACTIVITY
     );
-
-    public boolean shouldAlwaysAlert(EventType eventType) {
-        return alwaysAlertEvents.contains(eventType);
-    }
 
     public int getThreshold(EventType eventType) {
         return eventThresholds.getOrDefault(eventType, Integer.MAX_VALUE);
@@ -38,7 +44,8 @@ public class AnalysisRules implements Cloneable {
 
             // Deep clone delle mappe
             cloned.eventThresholds = new HashMap<>(this.eventThresholds);
-            cloned.alwaysAlertEvents = Set.copyOf(this.alwaysAlertEvents);
+            cloned.types = Set.copyOf(this.types);
+            cloned.levels = Set.copyOf(this.levels);
 
             return cloned;
         } catch (CloneNotSupportedException e) {

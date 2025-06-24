@@ -5,6 +5,7 @@ import it.unibas.common.model.Event;
 public interface IEventAnalyzer {
 
     void analyzeEvent(Event event);
+    AnalysisRules getRules();
     void updateRules(AnalysisRules rules);
     AnalysisStats getStats();
     String getAnalyzerName();

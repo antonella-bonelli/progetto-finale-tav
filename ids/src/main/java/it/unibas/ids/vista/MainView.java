@@ -1,5 +1,6 @@
 package it.unibas.ids.vista;
 
+import it.unibas.common.util.EventUtil;
 import it.unibas.ids.model.Alert;
 import it.unibas.common.model.Event;
 import it.unibas.common.model.FileAccessEvent;
@@ -172,7 +173,7 @@ public class MainView extends JPanel implements IMainView {
         String severityFilter = selectedSeverity != null ? selectedSeverity.trim().toUpperCase() : "TUTTI";
 
         // Filtra per tipo evento
-        boolean matchesType = typeFilter.equals("TUTTI") || eventTypeMatches(selectedType, event);
+        boolean matchesType = typeFilter.equals("TUTTI") || EventUtil.eventTypeMatches(selectedType, event);
 
         // Filtra per severità (usando name in maiuscolo per sicurezza)
         boolean matchesSeverity = severityFilter.equals("TUTTI") ||
@@ -183,15 +184,6 @@ public class MainView extends JPanel implements IMainView {
         }
 
         eventLogArea.setCaretPosition(eventLogArea.getDocument().getLength()); // Scroll to bottom
-    }
-
-    private boolean eventTypeMatches(String filter, Event event) {
-        return switch (filter) {
-            case "Login" -> event instanceof LoginEvent;
-            case "File" -> event instanceof FileAccessEvent;
-            case "Network" -> event instanceof NetworkEvent;
-            default -> true;
-        };
     }
 
     public void addAlert(Alert alert) {

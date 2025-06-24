@@ -45,7 +45,7 @@ public class SuspiciousEventLoggingAspect {
                     event.getType().getDescription(),
                     event.getUserId()
             );
-            mainView.appendEventLog(message);
+            mainView.appendEventLog(event, message);
         }
 
         log.warn("Evento sospetto rilevato: {} dall'utente {} (dettagli: {})",event.getType(), event.getUserId(), event);

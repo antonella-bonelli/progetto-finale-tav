@@ -13,13 +13,14 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @Singleton
-public class RuleBasedAnalyzer extends AAnalyzer {
+public class AdvancedAnalyzer extends AAnalyzer {
 
     @Inject
-    public RuleBasedAnalyzer(AlertManager alertManager) {
+    public AdvancedAnalyzer(AlertManager alertManager) {
         super(alertManager);
         this.initRules();
     }
@@ -30,17 +31,19 @@ public class RuleBasedAnalyzer extends AAnalyzer {
         defaultThresholds.put(EventType.FILE_ACCESS, 50);
         defaultThresholds.put(EventType.SUSPICIOUS_LOGIN, 1);
 
+        Set<EventSeverity> levels = Set.of(EventSeverity.CRITICAL);
+
         super.rules = AnalysisRules.builder()
                 .eventThresholds(defaultThresholds)
+                .levels(levels)
                 .build();
     }
 
     private boolean shouldGenerateAlert(Event event) {
         EventType eventType = event.getType();
-        if (rules.shouldAlwaysAlert(eventType)) return true;
-
-        if (event.getSeverity() == EventSeverity.CRITICAL) return true;
-
+        if (rules.getLevels().contains(event.getSeverity())) {
+            return true;
+        }
         Long count = stats.getEventTypeCount().get(eventType);
         return count > rules.getThreshold(eventType);
     }
@@ -102,7 +105,7 @@ public class RuleBasedAnalyzer extends AAnalyzer {
 
     @Override
     public IEventAnalyzer clone() {
-        RuleBasedAnalyzer cloned = new RuleBasedAnalyzer(alertManager);
+        AdvancedAnalyzer cloned = new AdvancedAnalyzer(alertManager);
         cloned.rules = this.rules.clone();
         return cloned;
     }
