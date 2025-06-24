@@ -1,11 +1,9 @@
 package it.unibas.ids.vista;
 
-import it.unibas.common.util.EventUtil;
-import it.unibas.ids.model.Alert;
 import it.unibas.common.model.Event;
-import it.unibas.common.model.FileAccessEvent;
-import it.unibas.common.model.LoginEvent;
-import it.unibas.common.model.NetworkEvent;
+import it.unibas.common.model.EventGroup;
+import it.unibas.common.model.EventSeverity;
+import it.unibas.ids.model.Alert;
 import it.unibas.ids.model.Modello;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -96,7 +94,7 @@ public class MainView extends JPanel implements IMainView {
         JPanel alertPanel = new JPanel(new BorderLayout());
         alertPanel.setBorder(BorderFactory.createTitledBorder("🚨 Active Alerts"));
 
-        String[] alertColumns = {"Id","Time", "Severity","Type", "Status"};
+        String[] alertColumns = {"Id", "Time", "Severity", "Type", "Status"};
         alertTableModel = new DefaultTableModel(alertColumns, 0);
         alertTable = new JTable(alertTableModel);
         alertTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -120,11 +118,11 @@ public class MainView extends JPanel implements IMainView {
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
         filterPanel.add(new JLabel("Filtro:"));
-        typeFilterCombo = new JComboBox<>(new String[]{"Tutti", "Login", "File", "Network"});
+        typeFilterCombo = new JComboBox<>(new String[]{"Tutti", EventGroup.LOGIN.getDescription(), EventGroup.FILE_ACCESS.getDescription(), EventGroup.NETWORK_ACTIVITY.getDescription()});
         filterPanel.add(typeFilterCombo);
 
         filterPanel.add(new JLabel("Severità:"));
-        severityFilterCombo = new JComboBox<>(new String[]{"Tutti", "LOW", "MEDIUM", "HIGH", "CRITICAL"});
+        severityFilterCombo = new JComboBox<>(new String[]{"Tutti", EventSeverity.LOW.name(), EventSeverity.MEDIUM.name(), EventSeverity.HIGH.name(), EventSeverity.CRITICAL.name()});
         filterPanel.add(severityFilterCombo);
 
         return filterPanel;
@@ -173,7 +171,7 @@ public class MainView extends JPanel implements IMainView {
         String severityFilter = selectedSeverity != null ? selectedSeverity.trim().toUpperCase() : "TUTTI";
 
         // Filtra per tipo evento
-        boolean matchesType = typeFilter.equals("TUTTI") || EventUtil.eventTypeMatches(selectedType, event);
+        boolean matchesType = typeFilter.equals("TUTTI") || event.getGroup().getDescription().equalsIgnoreCase(selectedType);
 
         // Filtra per severità (usando name in maiuscolo per sicurezza)
         boolean matchesSeverity = severityFilter.equals("TUTTI") ||

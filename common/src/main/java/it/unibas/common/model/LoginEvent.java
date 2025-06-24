@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginEvent extends Event {
+    private EventGroup group = EventGroup.LOGIN;
     @Builder.Default
     private String loginMethod = "password";
 

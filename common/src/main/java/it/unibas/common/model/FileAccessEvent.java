@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FileAccessEvent extends Event {
+    private EventGroup group = EventGroup.FILE_ACCESS;
     @NonNull
     private String filePath;
 
