@@ -36,19 +36,22 @@ public class CloneConfigDialog extends JDialog {
     private JTable alertTable;
     private DefaultTableModel alertTableModel;
     private JButton analyzeButton;
+    private JButton saveButton;
 
     private List<Event> events;
     private AdvancedAnalyzer advancedAnalyzer;
     private SimpleAnalyzer simpleAnalyzer;
+    private IEventAnalyzer mainAnalyzer;
 
     private JPanel analyzerConfigPanel;
     private JPanel simplePanel;
     private JPanel advancedPanel;
 
-    public CloneConfigDialog(List<Event> events, AdvancedAnalyzer aa, SimpleAnalyzer sa) {
+    public CloneConfigDialog(List<Event> events, AdvancedAnalyzer aa, SimpleAnalyzer sa, IEventAnalyzer mainAnalyzer) {
         this.events = events;
         this.advancedAnalyzer = aa;
         this.simpleAnalyzer = sa;
+        this.mainAnalyzer = mainAnalyzer;
         initUI();
     }
 
@@ -113,12 +116,22 @@ public class CloneConfigDialog extends JDialog {
         analyzeButton = new JButton("Analizza eventi ora");
         analyzeButton.addActionListener(e -> runCloneAnalysis());
 
+        // Bottone Salva
+        saveButton = new JButton("Salva configurazione");
+        saveButton.addActionListener(e -> saveCurrentConfigToMainAnalyzer());
+
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 16, 8));
+        bottomPanel.add(analyzeButton);
+        bottomPanel.add(saveButton);
+
         add(configPanel, BorderLayout.NORTH);
         add(mainSplit, BorderLayout.CENTER);
-        add(analyzeButton, BorderLayout.SOUTH);
+        add(bottomPanel, BorderLayout.SOUTH);
 
         // Precompila pannelli con valori correnti
         updateConfigPanelsFromRules();
+
+        setLocationRelativeTo(null);
     }
 
     private JPanel createSimpleAnalyzerConfigPanel() {
@@ -313,4 +326,52 @@ public class CloneConfigDialog extends JDialog {
             logArea.append(ViewUtil.formatLogMessage(event) + "\n");
         }
     }
+
+    private void saveCurrentConfigToMainAnalyzer() {
+        String selectedAnalyzer = (String) analyzerTypeCombo.getSelectedItem();
+        AnalysisRules rules;
+        if ("AdvancedAnalyzer".equals(selectedAnalyzer)) {
+            rules = advancedAnalyzer.getRules().clone();
+
+            // Aggiorna levels
+            Set<EventSeverity> selectedLevels = severityCheckBoxMapAdvanced.entrySet().stream()
+                    .filter(e -> e.getValue().isSelected())
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toSet());
+            rules.setLevels(selectedLevels);
+
+            // Aggiorna soglie
+            Map<EventType, Integer> thresholds = new HashMap<>();
+            for (Map.Entry<EventType, JTextField> entry : thresholdFieldMap.entrySet()) {
+                try {
+                    int threshold = Integer.parseInt(entry.getValue().getText());
+                    thresholds.put(entry.getKey(), threshold);
+                } catch (NumberFormatException ex) {
+                    thresholds.put(entry.getKey(), Integer.MAX_VALUE);
+                }
+            }
+            rules.setEventThresholds(thresholds);
+        } else {
+            rules = simpleAnalyzer.getRules().clone();
+
+            // Aggiorna levels
+            Set<EventSeverity> selectedLevels = severityCheckBoxMapSimple.entrySet().stream()
+                    .filter(e -> e.getValue().isSelected())
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toSet());
+            rules.setLevels(selectedLevels);
+
+            // Aggiorna groups
+            Set<EventGroup> selectedGroups = groupCheckBoxMapSimple.entrySet().stream()
+                    .filter(e -> e.getValue().isSelected())
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toSet());
+            rules.setGroups(selectedGroups);
+        }
+
+        // Applica la nuova configurazione al mainAnalyzer
+        mainAnalyzer.updateRules(rules);
+        JOptionPane.showMessageDialog(this, "Configurazione salvata e applicata all'analyzer principale!");
+    }
+
 }

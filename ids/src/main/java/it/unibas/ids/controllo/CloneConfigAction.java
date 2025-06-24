@@ -37,7 +37,8 @@ public class CloneConfigAction extends AbstractAction {
         CloneConfigDialog dialog = new CloneConfigDialog(
                 collector.getAllEvents(),
                 (AdvancedAnalyzer) advancedAnalyzer.clone(),
-                (SimpleAnalyzer) simpleAnalyzer.clone()
+                (SimpleAnalyzer) simpleAnalyzer.clone(),
+                eventAnalyzer
         );
         dialog.setVisible(true);
 

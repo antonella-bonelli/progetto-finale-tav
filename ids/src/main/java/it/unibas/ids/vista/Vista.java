@@ -23,10 +23,17 @@ public class Vista extends JFrame implements IVista {
     }
 
     public void mainView() {
-        this.setSize(new Dimension(620, 640));
+        //this.setSize(new Dimension(620, 640));
+
         this.mainView.setButtonAction(Costanti.AZIONE_START, this.controllo.getAction(Costanti.AZIONE_START));
         this.mainView.setButtonAction(Costanti.AZIONE_STOP, this.controllo.getAction(Costanti.AZIONE_STOP));
+
+        // Massimizza la finestra
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
         this.setVisible(true);
+
+        this.setLocationRelativeTo(null);
     }
 
     private void createMenu() {
