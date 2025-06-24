@@ -1,16 +1,18 @@
 # Fonti di eventi abilitate (separate da virgola)
 simulator.sources=login,fileaccess
 
-# Capacit� della coda eventi
+# Capacità della coda eventi
 simulator.queue.capacity=1000
 
-# Intervallo base di generazione eventi (ms)
-simulator.event.interval=1000
+simulator.max.events = 10000
 
-# Modalit� debug
+# Intervallo base di generazione eventi (ms)
+ simulator.event.interval=1000
+
+# Modalità debug
 simulator.debug=false
 
-# Probabilit� di eventi sospetti (0.0 - 1.0)
+# Probabilià di eventi sospetti (0.0 - 1.0)
 simulator.suspicious.probability=0.3
 
 # Configurazioni specifiche per fonte login

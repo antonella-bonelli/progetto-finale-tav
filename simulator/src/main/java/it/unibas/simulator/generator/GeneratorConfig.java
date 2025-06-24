@@ -59,8 +59,9 @@ public class GeneratorConfig {
         double suspiciousProbability = Double.parseDouble(
                 props.getProperty("simulator.suspicious.probability", "0.15"));
         boolean debugMode = Boolean.parseBoolean(props.getProperty("simulator.debug", "false"));
-        int maxEvents = Integer.parseInt(props.getProperty("simulator.max.events", "10"));
+        int maxEvents = Integer.parseInt(props.getProperty("simulator.max.events", "10000"));
         String sourceId = props.getProperty("simulator.source.id", "simulator");
+        int port = Integer.parseInt(props.getProperty("simulator.port", "9876"));
 
         return GeneratorConfig.builder()
                 .generatorName("EventGenerator")
@@ -69,6 +70,7 @@ public class GeneratorConfig {
                 .debugMode(debugMode)
                 .maxEvents(maxEvents)
                 .sourceId(sourceId)
+                .port(port)
                 .build();
     }
 
@@ -77,6 +79,7 @@ public class GeneratorConfig {
                 .generatorName("DefaultGenerator")
                 .intervalMs(2000)
                 .suspiciousEventProbability(0.20)
+                .port(9876)
                 .build();
     }
 
