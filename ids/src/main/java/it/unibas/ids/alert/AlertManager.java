@@ -45,4 +45,11 @@ public class AlertManager {
             log.info("Alert resolved: {}", alertId);
         }
     }
+
+    public void clearAll() {
+        activeAlerts.clear();
+        alertHistory.clear();
+        totalAlerts.set(0);
+    }
+
 }

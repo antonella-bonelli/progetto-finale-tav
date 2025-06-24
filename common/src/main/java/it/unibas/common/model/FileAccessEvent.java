@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FileAccessEvent extends Event {
-    private EventGroup group = EventGroup.FILE_ACCESS;
+
     @NonNull
     private String filePath;
 
@@ -26,6 +26,7 @@ public class FileAccessEvent extends Event {
     public static FileAccessEventBuilder unauthorizedAccess(String filePath, String userId) {
         return FileAccessEvent.builder()
                 .type(EventType.UNAUTHORIZED_FILE_ACCESS)
+                .group(EventGroup.FILE_ACCESS)
                 .filePath(filePath)
                 .userId(userId)
                 .isAuthorized(false)
@@ -36,6 +37,7 @@ public class FileAccessEvent extends Event {
     public static FileAccessEventBuilder normalAccess(String filePath, String userId) {
         return FileAccessEvent.builder()
                 .type(EventType.FILE_ACCESS)
+                .group(EventGroup.FILE_ACCESS)
                 .filePath(filePath)
                 .userId(userId)
                 .isAuthorized(true)
@@ -46,6 +48,7 @@ public class FileAccessEvent extends Event {
     public static FileAccessEventBuilder sensitiveFileAccess(String filePath, String userId) {
         return FileAccessEvent.builder()
                 .type(EventType.SENSITIVE_FILE_ACCESS)
+                .group(EventGroup.FILE_ACCESS)
                 .filePath(filePath)
                 .userId(userId)
                 .isAuthorized(false)

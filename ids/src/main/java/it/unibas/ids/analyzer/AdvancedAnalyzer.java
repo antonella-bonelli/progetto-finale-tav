@@ -28,7 +28,7 @@ public class AdvancedAnalyzer extends AAnalyzer {
     private void initRules() {
         Map<EventType, Integer> defaultThresholds = new HashMap<>();
         defaultThresholds.put(EventType.FAILED_LOGIN, 5);
-        defaultThresholds.put(EventType.FILE_ACCESS, 50);
+        defaultThresholds.put(EventType.SENSITIVE_FILE_ACCESS, 10);
         defaultThresholds.put(EventType.SUSPICIOUS_LOGIN, 1);
 
         Set<EventSeverity> levels = Set.of(EventSeverity.CRITICAL);

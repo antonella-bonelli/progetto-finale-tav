@@ -43,6 +43,11 @@ public abstract class AAnalyzer implements IEventAnalyzer, Cloneable {
     }
 
     @Override
+    public AlertManager getManager() {
+        return this.alertManager;
+    }
+
+    @Override
     public AnalysisStats getStats() {
         return AnalysisStats.builder()
                 .eventsAnalyzed(eventsAnalyzed.get())

@@ -3,7 +3,8 @@ package it.unibas.ids.analyzer;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import it.unibas.common.model.Event;
-import it.unibas.common.model.EventType;
+import it.unibas.common.model.EventGroup;
+import it.unibas.common.model.EventSeverity;
 import it.unibas.ids.alert.AlertManager;
 import it.unibas.ids.model.Alert;
 import it.unibas.ids.model.ThreatLevel;
@@ -15,7 +16,6 @@ import java.util.Set;
 @Singleton
 public class SimpleAnalyzer extends AAnalyzer {
 
-
     @Inject
     public SimpleAnalyzer(AlertManager alertManager) {
         super(alertManager);
@@ -23,21 +23,18 @@ public class SimpleAnalyzer extends AAnalyzer {
     }
 
     public void initRules() {
-        Set<EventType> alertEvents = Set.of(
-                EventType.UNAUTHORIZED_FILE_ACCESS,
-                EventType.SENSITIVE_FILE_ACCESS,
-                EventType.SUSPICIOUS_NETWORK_ACTIVITY,
-                EventType.SUSPICIOUS_LOGIN,
-                EventType.OFF_HOURS_LOGIN
-        );
+        Set<EventGroup> groups = Set.of(EventGroup.values());
+        Set<EventSeverity> levels = Set.of(EventSeverity.values());
 
         super.rules = AnalysisRules.builder()
-                .types(alertEvents)
+                .groups(groups)
+                .levels(levels)
                 .build();
     }
 
     private boolean shouldGenerateAlert(Event event) {
-        return rules.getLevels().contains(event.getSeverity()) && rules.getTypes().contains(event.getType());
+        return rules.getLevels().contains(event.getSeverity())
+                && rules.getGroups().contains(event.getGroup());
     }
 
     private Alert createSimpleAlert(Event event) {

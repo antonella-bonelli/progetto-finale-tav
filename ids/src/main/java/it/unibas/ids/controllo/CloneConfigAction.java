@@ -1,11 +1,11 @@
 package it.unibas.ids.controllo;
 
 import com.google.inject.Inject;
+import it.unibas.ids.analyzer.AdvancedAnalyzer;
 import it.unibas.ids.analyzer.IEventAnalyzer;
-import it.unibas.ids.analyzer.RuleBasedAnalyzer;
 import it.unibas.ids.analyzer.SimpleAnalyzer;
-import it.unibas.ids.vista.IMainView;
-import it.unibas.ids.vista.IVista;
+import it.unibas.ids.collector.EventCollector;
+import it.unibas.ids.vista.CloneConfigDialog;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
@@ -15,16 +15,16 @@ import java.awt.event.ActionEvent;
 @Singleton
 @Slf4j
 public class CloneConfigAction extends AbstractAction {
-    private IControllo controllo;
-    private IVista vista;
-    private IMainView mainView;
+    private final EventCollector collector;
+    private final AdvancedAnalyzer advancedAnalyzer;
+    private final SimpleAnalyzer simpleAnalyzer;
     private IEventAnalyzer eventAnalyzer;
 
     @Inject()
-    public CloneConfigAction(IControllo controllo, IVista vista, IMainView mainView, IEventAnalyzer eventAnalyzer) {
-        this.controllo = controllo;
-        this.vista = vista;
-        this.mainView = mainView;
+    public CloneConfigAction(EventCollector collector, AdvancedAnalyzer advancedAnalyzer, SimpleAnalyzer simpleAnalyzer, IEventAnalyzer eventAnalyzer) {
+        this.collector = collector;
+        this.advancedAnalyzer = advancedAnalyzer;
+        this.simpleAnalyzer = simpleAnalyzer;
         this.eventAnalyzer = eventAnalyzer;
         this.putValue(Action.NAME, "Clona configurazione");
         this.putValue(Action.SHORT_DESCRIPTION, "Clona la configurazione corrente");
@@ -34,7 +34,14 @@ public class CloneConfigAction extends AbstractAction {
 
     public void actionPerformed(ActionEvent evt) {
         log.info("Cloning current configuration...");
-        IEventAnalyzer cloned = null;
+        CloneConfigDialog dialog = new CloneConfigDialog(
+                collector.getAllEvents(),
+                (AdvancedAnalyzer) advancedAnalyzer.clone(),
+                (SimpleAnalyzer) simpleAnalyzer.clone()
+        );
+        dialog.setVisible(true);
+
+        /*IEventAnalyzer cloned = null;
         switch (eventAnalyzer.getAnalysisType()) {
             case SIMPLE -> {
                 SimpleAnalyzer analyzer = (SimpleAnalyzer) eventAnalyzer;
@@ -44,8 +51,8 @@ public class CloneConfigAction extends AbstractAction {
                 RuleBasedAnalyzer analyzer = (RuleBasedAnalyzer) eventAnalyzer;
                 cloned = analyzer.clone();
             }
-        };
+        }
         log.info("Original configuration: {}", eventAnalyzer.toString());
-        log.info("Cloned configuration: {}", cloned.toString());
+        log.info("Cloned configuration: {}", cloned.toString());*/
     }
 }

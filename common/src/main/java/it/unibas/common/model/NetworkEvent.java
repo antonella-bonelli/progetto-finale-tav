@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NetworkEvent extends Event {
-    private EventGroup group = EventGroup.NETWORK_ACTIVITY;
+
     @NonNull
     private String sourceIp;
 
@@ -34,6 +34,7 @@ public class NetworkEvent extends Event {
     public static NetworkEventBuilder normalTraffic(String sourceIp, String destinationIp, String userId) {
         return NetworkEvent.builder()
                 .type(EventType.NORMAL_NETWORK_ACTIVITY)
+                .group(EventGroup.NETWORK_ACTIVITY)
                 .userId(userId)
                 .sourceIp(sourceIp)
                 .destinationIp(destinationIp)
@@ -45,6 +46,7 @@ public class NetworkEvent extends Event {
     public static NetworkEventBuilder suspiciousTraffic(String sourceIp, String destinationIp, String userId) {
         return NetworkEvent.builder()
                 .type(EventType.SUSPICIOUS_NETWORK_ACTIVITY)
+                .group(EventGroup.NETWORK_ACTIVITY)
                 .userId(userId)
                 .sourceIp(sourceIp)
                 .destinationIp(destinationIp)
@@ -55,6 +57,7 @@ public class NetworkEvent extends Event {
     public static NetworkEventBuilder dataExfiltration(String sourceIp, String destinationIp, String userId) {
         return NetworkEvent.builder()
                 .type(EventType.DATA_EXFILTRATION)
+                .group(EventGroup.NETWORK_ACTIVITY)
                 .userId(userId)
                 .sourceIp(sourceIp)
                 .destinationIp(destinationIp)

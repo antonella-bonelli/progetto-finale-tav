@@ -5,6 +5,7 @@ import it.unibas.common.model.EventGroup;
 import it.unibas.common.model.EventSeverity;
 import it.unibas.ids.model.Alert;
 import it.unibas.ids.model.Modello;
+import it.unibas.ids.util.ViewUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
@@ -12,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.time.format.DateTimeFormatter;
 
 import static it.unibas.ids.Costanti.AZIONE_START;
 import static it.unibas.ids.Costanti.AZIONE_STOP;
@@ -30,7 +30,6 @@ public class MainView extends JPanel implements IMainView {
     private JTextArea eventLogArea;
     private JLabel statusLabel;
     private JLabel eventCountLabel;
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     private JComboBox<String> typeFilterCombo;
     private JComboBox<String> severityFilterCombo;
@@ -188,7 +187,7 @@ public class MainView extends JPanel implements IMainView {
         SwingUtilities.invokeLater(() -> {
             Object[] rowData = {
                     alert.getAlertId(),
-                    alert.getTimestamp().format(formatter),
+                    alert.getTimestamp().format(ViewUtil.getFormatter()),
                     alert.getThreatLevel().toString(),
                     alert.getAlertType(),
                     alert.getStatus().toString()

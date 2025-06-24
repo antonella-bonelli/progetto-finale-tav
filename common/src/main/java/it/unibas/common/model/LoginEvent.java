@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginEvent extends Event {
-    private EventGroup group = EventGroup.LOGIN;
+
     @Builder.Default
     private String loginMethod = "password";
 
@@ -25,6 +25,7 @@ public class LoginEvent extends Event {
     public static LoginEventBuilder successfulLogin(String userId) {
         return LoginEvent.builder()
                 .type(EventType.SUCCESSFUL_LOGIN)
+                .group(EventGroup.LOGIN)
                 .userId(userId)
                 .result(LoginResult.SUCCESS)
                 .timestamp(LocalDateTime.now())
@@ -34,6 +35,7 @@ public class LoginEvent extends Event {
     public static LoginEventBuilder suspiciousLogin(String userId) {
         return LoginEvent.builder()
                 .type(EventType.SUSPICIOUS_LOGIN)
+                .group(EventGroup.LOGIN)
                 .userId(userId)
                 .result(LoginResult.FAILURE)
                 .timestamp(LocalDateTime.now())
@@ -43,6 +45,7 @@ public class LoginEvent extends Event {
     public static LoginEventBuilder offHoursLogin(String userId) {
         return LoginEvent.builder()
                 .type(EventType.OFF_HOURS_LOGIN)
+                .group(EventGroup.LOGIN)
                 .userId(userId)
                 .result(LoginResult.SYSTEM_UNAVAILABLE)
                 .timestamp(LocalDateTime.now())
@@ -53,6 +56,7 @@ public class LoginEvent extends Event {
         EventSeverity severity = attemptNumber > 5 ? EventSeverity.CRITICAL : EventSeverity.HIGH;
         return LoginEvent.builder()
                 .type(EventType.MULTIPLE_FAILED_LOGINS)
+                .group(EventGroup.LOGIN)
                 .userId(userId)
                 .result(LoginResult.FAILURE)
                 .attemptCount(attemptNumber)
@@ -63,6 +67,7 @@ public class LoginEvent extends Event {
     public static LoginEventBuilder logout(String userId) {
         return LoginEvent.builder()
                 .type(EventType.LOGOUT)
+                .group(EventGroup.LOGIN)
                 .userId(userId)
                 .timestamp(LocalDateTime.now())
                 .severity(EventSeverity.LOW);
