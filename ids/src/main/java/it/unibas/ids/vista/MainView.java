@@ -104,7 +104,7 @@ public class MainView extends JPanel implements IMainView {
         JPanel statsPanel = createStatsPanel();
 
         rightPanel.add(alertPanel, BorderLayout.CENTER);
-        rightPanel.add(statsPanel, BorderLayout.SOUTH);
+        //rightPanel.add(statsPanel, BorderLayout.SOUTH);
 
         mainSplit.setLeftComponent(leftPanel);
         mainSplit.setRightComponent(rightPanel);
