@@ -5,10 +5,7 @@ import it.unibas.common.model.EventGroup;
 import it.unibas.common.model.EventSeverity;
 import it.unibas.common.model.EventType;
 import it.unibas.common.util.AnalysisContextHolder;
-import it.unibas.ids.analyzer.AdvancedAnalyzer;
-import it.unibas.ids.analyzer.AnalysisRules;
-import it.unibas.ids.analyzer.IEventAnalyzer;
-import it.unibas.ids.analyzer.SimpleAnalyzer;
+import it.unibas.ids.analyzer.*;
 import it.unibas.ids.model.Alert;
 import it.unibas.ids.util.ViewUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -42,16 +39,18 @@ public class CloneConfigDialog extends JDialog {
     private AdvancedAnalyzer advancedAnalyzer;
     private SimpleAnalyzer simpleAnalyzer;
     private IEventAnalyzer mainAnalyzer;
+    private AnalysisContext analysisContext;
 
     private JPanel analyzerConfigPanel;
     private JPanel simplePanel;
     private JPanel advancedPanel;
 
-    public CloneConfigDialog(List<Event> events, AdvancedAnalyzer aa, SimpleAnalyzer sa, IEventAnalyzer mainAnalyzer) {
+    public CloneConfigDialog(List<Event> events, AdvancedAnalyzer aa, SimpleAnalyzer sa, AnalysisContext analysisContext) {
         this.events = events;
         this.advancedAnalyzer = aa;
         this.simpleAnalyzer = sa;
-        this.mainAnalyzer = mainAnalyzer;
+        this.mainAnalyzer = analysisContext.getCurrentStrategy();
+        this.analysisContext = analysisContext;
         initUI();
     }
 
@@ -64,7 +63,10 @@ public class CloneConfigDialog extends JDialog {
         // Config Panel sopra
         JPanel configPanel = new JPanel(new BorderLayout());
         JPanel selectAnalyzerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        analyzerTypeCombo = new JComboBox<>(new String[]{"AdvancedAnalyzer", "SimpleAnalyzer"});
+        analyzerTypeCombo = new JComboBox<>(new String[]{EAnalysisType.ADVANCED.getDescription(), EAnalysisType.SIMPLE.getDescription()});
+        analyzerTypeCombo.setSelectedItem(mainAnalyzer.getAnalysisType().getDescription());
+        log.debug("\uD83D\uDEA8 \uD83D\uDEA8selected: {}", analyzerTypeCombo.getSelectedItem());
+        log.debug("\uD83D\uDEA8 \uD83D\uDEA8Analyzer: {}", mainAnalyzer.getAnalyzerName());
         selectAnalyzerPanel.add(new JLabel("Analyzer:"));
         selectAnalyzerPanel.add(analyzerTypeCombo);
         configPanel.add(selectAnalyzerPanel, BorderLayout.NORTH);
@@ -73,8 +75,13 @@ public class CloneConfigDialog extends JDialog {
         analyzerConfigPanel = new JPanel(new CardLayout());
         simplePanel = createSimpleAnalyzerConfigPanel();
         advancedPanel = createAdvancedConfigPanel();
-        analyzerConfigPanel.add(advancedPanel, "AdvancedAnalyzer");
-        analyzerConfigPanel.add(simplePanel, "SimpleAnalyzer");
+        if(mainAnalyzer instanceof SimpleAnalyzer) {
+            analyzerConfigPanel.add(simplePanel, EAnalysisType.SIMPLE.getDescription());
+            analyzerConfigPanel.add(advancedPanel, EAnalysisType.ADVANCED.getDescription());
+        } else {
+            analyzerConfigPanel.add(advancedPanel, EAnalysisType.ADVANCED.getDescription());
+            analyzerConfigPanel.add(simplePanel, EAnalysisType.SIMPLE.getDescription());
+        }
         configPanel.add(analyzerConfigPanel, BorderLayout.CENTER);
 
         // Cambio configurazione dinamica
@@ -118,6 +125,7 @@ public class CloneConfigDialog extends JDialog {
 
         // Bottone Salva
         saveButton = new JButton("Salva configurazione");
+        saveButton.setEnabled(false);
         saveButton.addActionListener(e -> saveCurrentConfigToMainAnalyzer());
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 16, 8));
@@ -215,8 +223,14 @@ public class CloneConfigDialog extends JDialog {
     }
 
     private void updateConfigPanelsFromRules() {
-        // SimpleAnalyzer
         AnalysisRules simpleRules = simpleAnalyzer.getRules();
+        AnalysisRules advancedRules = advancedAnalyzer.getRules();
+        if(this.mainAnalyzer instanceof SimpleAnalyzer) {
+            simpleRules =  this.mainAnalyzer.getRules();
+        } else {
+            advancedRules = this.mainAnalyzer.getRules();
+        }
+        // SimpleAnalyzer
         Set<EventSeverity> simpleLevels = simpleRules.getLevels();
         Set<EventGroup> simpleGroups = simpleRules.getGroups();
 
@@ -228,7 +242,6 @@ public class CloneConfigDialog extends JDialog {
         }
 
         // AdvancedAnalyzer
-        AnalysisRules advancedRules = advancedAnalyzer.getRules();
         Set<EventSeverity> advLevels = advancedRules.getLevels();
         Map<EventType, Integer> thresholds = advancedRules.getEventThresholds();
 
@@ -247,7 +260,7 @@ public class CloneConfigDialog extends JDialog {
         String selectedAnalyzer = (String) analyzerTypeCombo.getSelectedItem();
         AnalysisRules rules;
         IEventAnalyzer analyzer;
-        if ("AdvancedAnalyzer".equals(selectedAnalyzer)) {
+        if (EAnalysisType.ADVANCED.getDescription().equals(selectedAnalyzer)) {
             // Clona e aggiorna le regole
             rules = advancedAnalyzer.getRules().clone();
 
@@ -309,6 +322,7 @@ public class CloneConfigDialog extends JDialog {
 
         // Recupera e mostra Alert
         List<Alert> alerts = analyzer.getManager().getActiveAlerts();
+        mainAnalyzer = analyzer;
         log.debug("ci sono {} allarmi", alerts.size());
         for (Alert alert : alerts) {
             alertTableModel.addRow(new Object[]{
@@ -319,6 +333,7 @@ public class CloneConfigDialog extends JDialog {
                     alert.getStatus().toString()
             });
         }
+        saveButton.setEnabled(true);
     }
 
     private void initLogArea() {
@@ -328,50 +343,13 @@ public class CloneConfigDialog extends JDialog {
     }
 
     private void saveCurrentConfigToMainAnalyzer() {
-        String selectedAnalyzer = (String) analyzerTypeCombo.getSelectedItem();
-        AnalysisRules rules;
-        if ("AdvancedAnalyzer".equals(selectedAnalyzer)) {
-            rules = advancedAnalyzer.getRules().clone();
-
-            // Aggiorna levels
-            Set<EventSeverity> selectedLevels = severityCheckBoxMapAdvanced.entrySet().stream()
-                    .filter(e -> e.getValue().isSelected())
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toSet());
-            rules.setLevels(selectedLevels);
-
-            // Aggiorna soglie
-            Map<EventType, Integer> thresholds = new HashMap<>();
-            for (Map.Entry<EventType, JTextField> entry : thresholdFieldMap.entrySet()) {
-                try {
-                    int threshold = Integer.parseInt(entry.getValue().getText());
-                    thresholds.put(entry.getKey(), threshold);
-                } catch (NumberFormatException ex) {
-                    thresholds.put(entry.getKey(), Integer.MAX_VALUE);
-                }
-            }
-            rules.setEventThresholds(thresholds);
-        } else {
-            rules = simpleAnalyzer.getRules().clone();
-
-            // Aggiorna levels
-            Set<EventSeverity> selectedLevels = severityCheckBoxMapSimple.entrySet().stream()
-                    .filter(e -> e.getValue().isSelected())
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toSet());
-            rules.setLevels(selectedLevels);
-
-            // Aggiorna groups
-            Set<EventGroup> selectedGroups = groupCheckBoxMapSimple.entrySet().stream()
-                    .filter(e -> e.getValue().isSelected())
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toSet());
-            rules.setGroups(selectedGroups);
-        }
 
         // Applica la nuova configurazione al mainAnalyzer
-        mainAnalyzer.updateRules(rules);
+        //mainAnalyzer.updateRules(rules);
+        log.info("Analyzer: {} - {}", mainAnalyzer.getAnalyzerName(),mainAnalyzer.getRules().toString());
+        this.analysisContext.setStrategy(mainAnalyzer);
         JOptionPane.showMessageDialog(this, "Configurazione salvata e applicata all'analyzer principale!");
+        saveButton.setEnabled(false);
     }
 
 }
