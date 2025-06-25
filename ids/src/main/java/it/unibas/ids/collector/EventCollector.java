@@ -28,6 +28,7 @@ public class EventCollector implements IEventSubscriber {
 
     @Override
     public void onEvent(Event event) {
+        if (event == null) return;
         try {
             eventsReceived.incrementAndGet();
             allEvents.add(event.clone());

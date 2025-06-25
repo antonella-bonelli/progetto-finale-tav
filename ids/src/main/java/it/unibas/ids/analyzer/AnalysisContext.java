@@ -3,6 +3,7 @@ package it.unibas.ids.analyzer;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import it.unibas.common.model.Event;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.Map;
 @Slf4j
 @Singleton
 public class AnalysisContext {
+    @Getter
     private IEventAnalyzer currentStrategy;
     private final Map<EAnalysisType, IEventAnalyzer> availableStrategies;
 
@@ -26,14 +28,14 @@ public class AnalysisContext {
         log.info("📊 AnalysisContext inizializzato con la strategia di default: {}", currentStrategy.getAnalyzerName());
     }
 
-    public void setStrategy(EAnalysisType analysisType) {
-        IEventAnalyzer newStrategy = availableStrategies.get(analysisType);
+    public void setStrategy(IEventAnalyzer newStrategy) {
+        //IEventAnalyzer newStrategy = availableStrategies.get(analysisType);
         if (newStrategy != null) {
             IEventAnalyzer oldStrategy = currentStrategy;
             currentStrategy = newStrategy;
             log.info("🔄 Strategia cambiata: {} → {}", oldStrategy.getAnalyzerName(), currentStrategy.getAnalyzerName());
         } else {
-            log.warn("❌ Strategia {} non disponibile", analysisType);
+            log.warn("❌Analyzer is null");
         }
     }
 
