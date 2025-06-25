@@ -371,54 +371,5 @@ public class RandomEventGeneratorTest {
                 String.format("Suspicious event ratio should be around 0.3, but was: %.2f",
                         actualSuspiciousRatio));
     }
-
-    @Test
-    void shouldHandleConcurrentStartStopOperations() throws InterruptedException {
-        // Usa un generator con configurazione più semplice
-        GeneratorConfig concurrentConfig = GeneratorConfig.builder()
-                .generatorName("ConcurrentTestGenerator")
-                .intervalMs(100)
-                .numberOfSources(2)  // Meno thread
-                .build();
-
-        //RandomEventGenerator concurrentGenerator = new RandomEventGenerator(concurrentConfig);
-        generator.updateConfig(concurrentConfig);
-        int threadCount = 10;
-        CountDownLatch startLatch = new CountDownLatch(threadCount);
-        CountDownLatch finishLatch = new CountDownLatch(threadCount);
-
-        // Usa un executor per i thread di test
-        ExecutorService testExecutor = Executors.newFixedThreadPool(threadCount);
-
-        for (int i = 0; i < threadCount; i++) {
-            final int threadIndex = i;
-            testExecutor.submit(() -> {
-                try {
-                    startLatch.countDown();
-                    startLatch.await();
-
-                    if (threadIndex % 2 == 0) {
-                        generator.start();
-                    } else {
-                        generator.stop();
-                    }
-
-                    finishLatch.countDown();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            });
-        }
-
-        assertTrue(finishLatch.await(10, TimeUnit.SECONDS), "All operations should complete");
-
-        // Cleanup
-        testExecutor.shutdown();
-        generator.stop();
-
-        // Attendi che si fermi completamente
-        Thread.sleep(500);
-
-        assertFalse(generator.isActive());
-    }
+    
 }

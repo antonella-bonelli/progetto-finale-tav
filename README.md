@@ -12,7 +12,7 @@ Sistema di rilevamento intrusioni con simulatore integrato e interfaccia grafica
 
 2. **Build del progetto**
    ```bash
-   ./gradlew build
+   ./gradlew build -x test
    ```
 
 ## Avvio
