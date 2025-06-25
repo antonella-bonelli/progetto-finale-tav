@@ -371,5 +371,5 @@ public class RandomEventGeneratorTest {
                 String.format("Suspicious event ratio should be around 0.3, but was: %.2f",
                         actualSuspiciousRatio));
     }
-    
+
 }

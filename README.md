@@ -49,6 +49,14 @@ Lo script aprirà automaticamente:
    - **Filtri**: Per tipo evento e severità
    - **Clone Config**: Per testare configurazioni diverse
 
+### ⚙️ Funzione Clone Configuration
+La funzione Clone Configuration crea una copia degli eventi catturati al momento del clone:
+
+Se non ci sono eventi catturati, la dialog mostrerà una log area vuota
+È comunque possibile modificare la configurazione dell'analyzer
+Permette di testare diverse configurazioni senza impattare il sistema principale
+Gli eventi clonati sono isolati e non influenzano l'analisi in tempo reale
+
 ## Requisiti
 
 - Java 17+
