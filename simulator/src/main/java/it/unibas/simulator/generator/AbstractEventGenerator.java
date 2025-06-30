@@ -166,11 +166,6 @@ public abstract class AbstractEventGenerator implements EventGenerator {
         }
     }
 
-    public int getActiveSourcesCount() {
-        return (int) sourceThreads.stream().filter(EventSourceThread::isActive).count();
-    }
-
-
     private void dispatchEvent(Event event, String sourceId) {
         if (eventConsumer != null) {
             try {
@@ -186,8 +181,7 @@ public abstract class AbstractEventGenerator implements EventGenerator {
     }
 
     private void waitForNextCycle() throws InterruptedException {
-        long baseInterval = config.getIntervalMs();
-        long waitTime = baseInterval;
+        long waitTime = config.getIntervalMs();
         Thread.sleep(waitTime);
     }
 
@@ -266,12 +260,5 @@ public abstract class AbstractEventGenerator implements EventGenerator {
             isSourceRunning.set(false);
         }
 
-        public boolean isActive() {
-            return isSourceRunning.get();
-        }
-
-        public void addSourceEventsGenerated() {
-            sourceEventsGenerated.incrementAndGet();
-        }
     }
 }

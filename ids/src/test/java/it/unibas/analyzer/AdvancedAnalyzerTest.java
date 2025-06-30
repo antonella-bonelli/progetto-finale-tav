@@ -8,7 +8,6 @@ import it.unibas.ids.analyzer.AdvancedAnalyzer;
 import it.unibas.ids.analyzer.AnalysisRules;
 import it.unibas.ids.analyzer.IEventAnalyzer;
 import it.unibas.ids.model.Alert;
-import it.unibas.ids.model.ThreatLevel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -16,10 +15,10 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.HashMap;
 import java.util.Set;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 public class AdvancedAnalyzerTest {
     @Mock
@@ -95,13 +94,12 @@ public class AdvancedAnalyzerTest {
 
     @Test
     void shouldMapSeverityToThreatLevelCorrectly() {
-        Event lowEvent = LoginEvent.successfulLogin("user").severity(EventSeverity.LOW).build();
         Event criticalEvent = LoginEvent.bruteForceAttempt("user", 10).severity(EventSeverity.CRITICAL).build();
 
         analyzer.analyzeEvent(criticalEvent);
 
         verify(alertManager).addAlert(argThat(alert ->
-                alert.getThreatLevel() == ThreatLevel.CRITICAL
+                alert.getEventSeverity() == EventSeverity.CRITICAL
         ));
     }
 }

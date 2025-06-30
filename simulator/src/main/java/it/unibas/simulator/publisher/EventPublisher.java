@@ -2,8 +2,7 @@ package it.unibas.simulator.publisher;
 
 import it.unibas.common.interfaces.IEventSubscriber;
 import it.unibas.common.model.Event;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -115,7 +114,6 @@ public class EventPublisher {
 
         while (isRunning.get() || !eventQueue.isEmpty()) {
             try {
-                // Take event from queue (blocks if empty)
                 Event event = eventQueue.poll(publishIntervalMs, TimeUnit.MILLISECONDS);
 
                 if (event != null) {
@@ -133,11 +131,9 @@ public class EventPublisher {
                 break;
             } catch (Exception e) {
                 log.error("Error in publishing loop: {}", e.getMessage());
-                e.printStackTrace();
             }
         }
 
-        // Process remaining events in queue
         processRemainingEvents();
 
         log.info("EventPublisher publishing loop finished");
@@ -154,7 +150,6 @@ public class EventPublisher {
                 subscriber.onEvent(event);
             } catch (Exception e) {
                 log.error("Error notifying subscriber {}: {}", subscriber.getClass().getSimpleName(), e.getMessage());
-                e.printStackTrace();
             }
         }
     }
@@ -207,17 +202,10 @@ public class EventPublisher {
         );
     }
 
-    @Data
-    @AllArgsConstructor
-    public static class PublisherStats {
-        private final long publishedEvents;
-        private final long droppedEvents;
-        private final int queueSize;
-        private final int subscriberCount;
-        private final boolean isRunning;
-
+    public record PublisherStats(long publishedEvents, long droppedEvents, int queueSize, int subscriberCount,
+                                 boolean isRunning) {
         @Override
-        public String toString() {
+        public @NonNull String toString() {
             return String.format(
                     "PublisherStats{published=%d, dropped=%d, queueSize=%d, subscribers=%d, running=%s}",
                     publishedEvents, droppedEvents, queueSize, subscriberCount, isRunning

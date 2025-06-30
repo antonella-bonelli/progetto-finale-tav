@@ -5,7 +5,6 @@ import it.unibas.ids.Costanti;
 import it.unibas.ids.controllo.IControllo;
 
 import javax.swing.*;
-import java.awt.*;
 
 public class Vista extends JFrame implements IVista {
     @Inject
@@ -17,18 +16,16 @@ public class Vista extends JFrame implements IVista {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setTitle("IDS");
         createMenu();
-        ((JPanel)this.getContentPane()).setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        this.getContentPane().add((JPanel)mainView);
+        ((JPanel) this.getContentPane()).setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        this.getContentPane().add((JPanel) mainView);
         mainView();
     }
 
     public void mainView() {
-        //this.setSize(new Dimension(620, 640));
 
         this.mainView.setButtonAction(Costanti.AZIONE_START, this.controllo.getAction(Costanti.AZIONE_START));
         this.mainView.setButtonAction(Costanti.AZIONE_STOP, this.controllo.getAction(Costanti.AZIONE_STOP));
 
-        // Massimizza la finestra
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         this.setVisible(true);

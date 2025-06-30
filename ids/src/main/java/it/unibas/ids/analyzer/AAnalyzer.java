@@ -1,9 +1,7 @@
 package it.unibas.ids.analyzer;
 
 import com.google.inject.Inject;
-import it.unibas.common.model.EventSeverity;
 import it.unibas.ids.alert.AlertManager;
-import it.unibas.ids.model.ThreatLevel;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -17,15 +15,6 @@ public abstract class AAnalyzer implements IEventAnalyzer, Cloneable {
     protected final AtomicLong alertsGenerated = new AtomicLong(0);
 
     protected AnalysisRules rules;
-
-    protected ThreatLevel mapSeverityToThreatLevel(EventSeverity severity) {
-        return switch (severity) {
-            case LOW -> ThreatLevel.LOW;
-            case MEDIUM -> ThreatLevel.MEDIUM;
-            case HIGH -> ThreatLevel.HIGH;
-            case CRITICAL -> ThreatLevel.CRITICAL;
-        };
-    }
 
     @Inject
     public AAnalyzer(AlertManager alertManager) {
@@ -58,11 +47,6 @@ public abstract class AAnalyzer implements IEventAnalyzer, Cloneable {
     @Override
     public String getAnalyzerName() {
         return getAnalysisType().getDisplayName();
-    }
-
-    @Override
-    public String getDescription() {
-        return getAnalysisType().getDescription();
     }
 
     @Override

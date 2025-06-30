@@ -1,12 +1,12 @@
 package it.unibas.ids.controllo;
 
 import com.google.inject.Inject;
-import it.unibas.ids.analyzer.AdvancedAnalyzer;
+import it.unibas.common.util.AnalysisContextHolder;
+import it.unibas.ids.Applicazione;
+import it.unibas.ids.Costanti;
 import it.unibas.ids.analyzer.AnalysisContext;
-import it.unibas.ids.analyzer.IEventAnalyzer;
-import it.unibas.ids.analyzer.SimpleAnalyzer;
 import it.unibas.ids.collector.EventCollector;
-import it.unibas.ids.vista.CloneConfigDialog;
+import it.unibas.ids.vista.ICloneConfigDialog;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,16 +17,14 @@ import java.awt.event.ActionEvent;
 @Slf4j
 public class CloneConfigAction extends AbstractAction {
     private final EventCollector collector;
-    private final AdvancedAnalyzer advancedAnalyzer;
-    private final SimpleAnalyzer simpleAnalyzer;
     private final AnalysisContext analysisContext;
+    private final ICloneConfigDialog dialog;
 
     @Inject()
-    public CloneConfigAction(EventCollector collector, AdvancedAnalyzer advancedAnalyzer, SimpleAnalyzer simpleAnalyzer, IEventAnalyzer eventAnalyzer, AnalysisContext analysisContext) {
+    public CloneConfigAction(EventCollector collector, AnalysisContext analysisContext, ICloneConfigDialog dialog) {
         this.collector = collector;
-        this.advancedAnalyzer = advancedAnalyzer;
-        this.simpleAnalyzer = simpleAnalyzer;
         this.analysisContext = analysisContext;
+        this.dialog = dialog;
         this.putValue(Action.NAME, "Clona configurazione");
         this.putValue(Action.SHORT_DESCRIPTION, "Clona la configurazione corrente");
         this.putValue(Action.MNEMONIC_KEY, java.awt.event.KeyEvent.VK_C);
@@ -35,12 +33,12 @@ public class CloneConfigAction extends AbstractAction {
 
     public void actionPerformed(ActionEvent evt) {
         log.info("Cloning current configuration...");
-        CloneConfigDialog dialog = new CloneConfigDialog(
-                collector.getAllEvents(),
-                (AdvancedAnalyzer) advancedAnalyzer.clone(),
-                (SimpleAnalyzer) simpleAnalyzer.clone(),
-                analysisContext
-        );
-        dialog.setVisible(true);
+        Controllo controllo = Applicazione.getInstance().getComponentInstance(Controllo.class);
+        //AnalysisContextHolder.setModalAnalysis(true);
+        dialog.showDialog(collector.getAllEvents(), analysisContext.getCurrentStrategy());
+        dialog.setButtonAction(Costanti.AZIONE_TESTA_CONFIG, controllo.getAction(Costanti.AZIONE_TESTA_CONFIG));
+        dialog.updateConfigPanelsFromRules();
+        dialog.initLogArea();
+        dialog.showMe(true);
     }
 }

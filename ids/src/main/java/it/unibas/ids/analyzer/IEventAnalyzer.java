@@ -6,13 +6,18 @@ import it.unibas.ids.alert.AlertManager;
 public interface IEventAnalyzer {
 
     IEventAnalyzer clone();
-    void analyzeEvent(Event event);
-    AnalysisRules getRules();
-    void updateRules(AnalysisRules rules);
-    AnalysisStats getStats();
-    AlertManager getManager();
-    String getAnalyzerName();
-    String getDescription();
-    EAnalysisType getAnalysisType();
 
+    void analyzeEvent(Event event);
+
+    AnalysisRules getRules();
+
+    void updateRules(AnalysisRules rules);
+
+    AnalysisStats getStats();
+
+    AlertManager getManager();
+
+    String getAnalyzerName();
+
+    EAnalysisType getAnalysisType();
 }

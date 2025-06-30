@@ -19,7 +19,7 @@ public class AlertManager {
     private final AtomicLong totalAlerts = new AtomicLong(0);
 
     public synchronized void addAlert(Alert alert) {
-        log.info("New alert generated: {} - {}", alert.getThreatLevel(), alert.getDescription());
+        log.info("New alert generated: {} - {}", alert.getEventSeverity(), alert.getDescription());
 
         activeAlerts.put(alert.getAlertId(), alert);
         alertHistory.add(alert);

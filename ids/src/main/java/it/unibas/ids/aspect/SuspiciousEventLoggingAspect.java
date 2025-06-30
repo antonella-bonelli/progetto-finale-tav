@@ -2,10 +2,10 @@ package it.unibas.ids.aspect;
 
 import com.google.inject.Inject;
 import it.unibas.common.model.Event;
+import it.unibas.common.model.EventSeverity;
 import it.unibas.common.util.AnalysisContextHolder;
 import it.unibas.ids.alert.EmailService;
 import it.unibas.ids.model.Alert;
-import it.unibas.ids.model.ThreatLevel;
 import it.unibas.ids.util.ViewUtil;
 import it.unibas.ids.vista.IMainView;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +39,7 @@ public class SuspiciousEventLoggingAspect {
             mainView.appendEventLog(event, message);
         }
 
-        log.warn("Evento sospetto rilevato: {} dall'utente {} (dettagli: {})",event.getType(), event.getUserId(), event);
+        log.warn("Evento sospetto rilevato: {} dall'utente {} (dettagli: {})", event.getType(), event.getUserId(), event);
 
     }
 
@@ -49,10 +49,10 @@ public class SuspiciousEventLoggingAspect {
         if (mainView != null && !AnalysisContextHolder.isModalAnalysis()) {
             mainView.addAlert(alert);
         }
-        if (alert.getThreatLevel() == ThreatLevel.CRITICAL) {
+        if (alert.getEventSeverity() == EventSeverity.CRITICAL) {
             log.error("🚨🚨 CRITICAL ALERT TRIGGERED 🚨🚨");
 
-            // ✅ INVIA EMAIL MOCK
+            // Invia email mock
             emailService.sendCriticalAlert(alert);
         }
     }

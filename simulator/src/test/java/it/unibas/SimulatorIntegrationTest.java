@@ -1,11 +1,11 @@
 package it.unibas;
 
-import it.unibas.simulator.generator.GeneratorConfig;
-import it.unibas.simulator.generator.RandomEventGenerator;
+import it.unibas.common.interfaces.IEventSubscriber;
 import it.unibas.common.model.Event;
 import it.unibas.common.model.EventSeverity;
+import it.unibas.simulator.generator.GeneratorConfig;
+import it.unibas.simulator.generator.RandomEventGenerator;
 import it.unibas.simulator.publisher.EventPublisher;
-import it.unibas.common.interfaces.IEventSubscriber;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,18 +23,16 @@ import static org.junit.jupiter.api.Assertions.*;
 public class SimulatorIntegrationTest {
     private EventPublisher publisher;
     private RandomEventGenerator generator;
-    private GeneratorConfig config;
     private TestIntegrationSubscriber subscriber;
 
     @BeforeEach
     void setUp() {
-        config = GeneratorConfig.builder()
+        GeneratorConfig config = GeneratorConfig.builder()
                 .generatorName("IntegrationTestGenerator")
                 .intervalMs(50)
                 .suspiciousEventProbability(0.4)
                 .maxEvents(20)
                 .sourceId("integration-test")
-                .debugMode(true)
                 .build();
 
         publisher = EventPublisher.builder()
@@ -43,7 +41,9 @@ public class SimulatorIntegrationTest {
                 .build();
 
         generator = new RandomEventGenerator(config);
-        generator.setEventConsumer(event -> {System.out.println("[Test default consumer " + event.getType());});
+        generator.setEventConsumer(event -> {
+            System.out.println("[Test default consumer " + event.getType());
+        });
         subscriber = new TestIntegrationSubscriber();
     }
 
@@ -186,11 +186,11 @@ public class SimulatorIntegrationTest {
 
             EventPublisher.PublisherStats stats = publisher.getStats();
 
-            assertTrue(stats.getPublishedEvents() <= publishSuccesses.get(),
+            assertTrue(stats.publishedEvents() <= publishSuccesses.get(),
                     "Published count should not exceed successful publishes");
-            assertTrue(stats.getQueueSize() >= 0, "Queue size should be non-negative");
-            assertTrue(stats.getDroppedEvents() >= 0, "Dropped count should be non-negative");
-            assertEquals(1, stats.getSubscriberCount(), "Should have one subscriber");
+            assertTrue(stats.queueSize() >= 0, "Queue size should be non-negative");
+            assertTrue(stats.droppedEvents() >= 0, "Dropped count should be non-negative");
+            assertEquals(1, stats.subscriberCount(), "Should have one subscriber");
             assertTrue(stats.isRunning(), "Publisher should be running");
         }
 
@@ -199,7 +199,7 @@ public class SimulatorIntegrationTest {
         publisher.stop();
 
         EventPublisher.PublisherStats finalStats = publisher.getStats();
-        assertEquals(publishSuccesses.get(), finalStats.getPublishedEvents(),
+        assertEquals(publishSuccesses.get(), finalStats.publishedEvents(),
                 "Final published count should match successful publishes");
         assertFalse(finalStats.isRunning(), "Publisher should be stopped");
     }
@@ -233,7 +233,7 @@ public class SimulatorIntegrationTest {
         assertFalse(publisher.isRunning(), "Publisher should be stopped");
 
         assertTrue(generator.getEventsGenerated() > 0, "Should have generated some events");
-        assertTrue(subscriber.getReceivedEvents().size() > 0, "Should have received some events");
+        assertFalse(subscriber.getReceivedEvents().isEmpty(), "Should have received some events");
     }
 
     @Test

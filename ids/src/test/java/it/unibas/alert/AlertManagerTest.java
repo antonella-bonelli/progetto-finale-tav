@@ -1,9 +1,9 @@
 package it.unibas.alert;
 
+import it.unibas.common.model.EventSeverity;
 import it.unibas.ids.alert.AlertManager;
 import it.unibas.ids.model.Alert;
 import it.unibas.ids.model.AlertStatus;
-import it.unibas.ids.model.ThreatLevel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +21,7 @@ public class AlertManagerTest {
 
     @Test
     void shouldAddAlertCorrectly() {
-        Alert alert = createTestAlert(ThreatLevel.HIGH);
+        Alert alert = createTestAlert(EventSeverity.HIGH);
 
         alertManager.addAlert(alert);
 
@@ -32,7 +32,7 @@ public class AlertManagerTest {
 
     @Test
     void shouldResolveAlertCorrectly() {
-        Alert alert = createTestAlert(ThreatLevel.MEDIUM);
+        Alert alert = createTestAlert(EventSeverity.MEDIUM);
         alertManager.addAlert(alert);
 
         alertManager.resolveAlert(alert.getAlertId());
@@ -44,8 +44,8 @@ public class AlertManagerTest {
 
     @Test
     void shouldTrackAlertHistory() {
-        Alert alert1 = createTestAlert(ThreatLevel.LOW);
-        Alert alert2 = createTestAlert(ThreatLevel.HIGH);
+        Alert alert1 = createTestAlert(EventSeverity.LOW);
+        Alert alert2 = createTestAlert(EventSeverity.HIGH);
 
         alertManager.addAlert(alert1);
         alertManager.addAlert(alert2);
@@ -58,8 +58,8 @@ public class AlertManagerTest {
 
     @Test
     void shouldClearAllCorrectly() {
-        alertManager.addAlert(createTestAlert(ThreatLevel.HIGH));
-        alertManager.addAlert(createTestAlert(ThreatLevel.LOW));
+        alertManager.addAlert(createTestAlert(EventSeverity.HIGH));
+        alertManager.addAlert(createTestAlert(EventSeverity.LOW));
 
         alertManager.clearAll();
 
@@ -74,9 +74,9 @@ public class AlertManagerTest {
         assertEquals(0, alertManager.getActiveAlerts().size());
     }
 
-    private Alert createTestAlert(ThreatLevel threatLevel) {
+    private Alert createTestAlert(EventSeverity eventSeverity) {
         return Alert.builder()
-                .threatLevel(threatLevel)
+                .eventSeverity(eventSeverity)
                 .alertType("TEST_ALERT")
                 .description("Test alert")
                 .userId("testUser")

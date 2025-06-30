@@ -7,7 +7,6 @@ import it.unibas.common.model.EventSeverity;
 import it.unibas.common.model.EventType;
 import it.unibas.ids.alert.AlertManager;
 import it.unibas.ids.model.Alert;
-import it.unibas.ids.model.ThreatLevel;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
@@ -49,10 +48,9 @@ public class AdvancedAnalyzer extends AAnalyzer {
     }
 
     private Alert createAlert(Event event) {
-        ThreatLevel threatLevel = super.mapSeverityToThreatLevel(event.getSeverity());
 
         return Alert.builder()
-                .threatLevel(threatLevel)
+                .eventSeverity(event.getSeverity())
                 .alertType(event.getType().toString())
                 .description(generateDescription(event))
                 .userId(event.getUserId())
@@ -90,7 +88,7 @@ public class AdvancedAnalyzer extends AAnalyzer {
             alertManager.addAlert(alert);
             alertsGenerated.incrementAndGet();
             stats.setAlertsGenerated(alertsGenerated.get());
-            stats.incrementThreatLevel(alert.getThreatLevel());
+            stats.incrementEventSeverity(alert.getEventSeverity());
         }
 
         // Update performance stats

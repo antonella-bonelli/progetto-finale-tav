@@ -357,17 +357,17 @@ public class EventPublisherTest {
 
         EventPublisher.PublisherStats stats = publisher.getStats();
 
-        assertTrue(stats.getQueueSize() >= 0, "Queue size should be non-negative");
-        assertEquals(1, stats.getSubscriberCount());
+        assertTrue(stats.queueSize() >= 0, "Queue size should be non-negative");
+        assertEquals(1, stats.subscriberCount());
         assertTrue(stats.isRunning());
 
         assertTrue(processedLatch.await(5, TimeUnit.SECONDS),
                 "All events should be processed within 5 seconds");
 
         EventPublisher.PublisherStats finalStats = publisher.getStats();
-        assertEquals(3, finalStats.getPublishedEvents());
-        assertEquals(0, finalStats.getDroppedEvents());
-        assertEquals(0, finalStats.getQueueSize(), "Queue should be empty after processing");
+        assertEquals(3, finalStats.publishedEvents());
+        assertEquals(0, finalStats.droppedEvents());
+        assertEquals(0, finalStats.queueSize(), "Queue should be empty after processing");
     }
 
     @Test

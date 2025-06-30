@@ -5,6 +5,7 @@ import it.unibas.ids.model.Alert;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.atomic.AtomicLong;
+
 @Slf4j
 @Singleton
 public class EmailService {
@@ -12,6 +13,7 @@ public class EmailService {
 
     public EmailService() {
     }
+
     public void sendCriticalAlert(Alert alert) {
         long emailId = emailsSent.incrementAndGet();
 
@@ -23,7 +25,7 @@ public class EmailService {
         log.error("📧 ");
         log.error("📧 CRITICAL SECURITY ALERT DETECTED");
         log.error("📧 ├── Alert ID: {}", alert.getAlertId());
-        log.error("📧 ├── Threat Level: {}", alert.getThreatLevel());
+        log.error("📧 ├── Threat Level: {}", alert.getEventSeverity());
         log.error("📧 ├── User: {}", alert.getUserId());
         log.error("📧 ├── Description: {}", alert.getDescription());
         log.error("📧 └── Confidence: {}%", Double.valueOf(alert.getConfidenceScore() * 100).intValue());

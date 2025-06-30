@@ -1,7 +1,7 @@
 package it.unibas.ids.analyzer;
 
+import it.unibas.common.model.EventSeverity;
 import it.unibas.common.model.EventType;
-import it.unibas.ids.model.ThreatLevel;
 import lombok.Builder;
 import lombok.Data;
 
@@ -28,7 +28,7 @@ public class AnalysisStats {
 
     // Statistiche per livello di minaccia
     @Builder.Default
-    private Map<ThreatLevel, Long> threatLevelCount = new HashMap<>();
+    private Map<EventSeverity, Long> eventSeverityCount = new HashMap<>();
 
     // Performance metrics
     @Builder.Default
@@ -48,12 +48,6 @@ public class AnalysisStats {
         return (double) eventsAnalyzed / duration;
     }
 
-    public double getAlertsPerMinute() {
-        long durationMinutes = java.time.Duration.between(startTime, lastEventTime).toMinutes();
-        if (durationMinutes == 0) return 0.0;
-        return (double) alertsGenerated / durationMinutes;
-    }
-
     public void updateAnalysisTime(long analysisTimeMs) {
         totalAnalysisTimeMs += analysisTimeMs;
         averageAnalysisTimeMs = (double) totalAnalysisTimeMs / eventsAnalyzed;
@@ -63,8 +57,8 @@ public class AnalysisStats {
         eventTypeCount.merge(eventType, 1L, Long::sum);
     }
 
-    public void incrementThreatLevel(ThreatLevel threatLevel) {
-        threatLevelCount.merge(threatLevel, 1L, Long::sum);
+    public void incrementEventSeverity(EventSeverity eventSeverity) {
+        eventSeverityCount.merge(eventSeverity, 1L, Long::sum);
     }
 
     public void reset() {
@@ -73,7 +67,7 @@ public class AnalysisStats {
         startTime = LocalDateTime.now();
         lastEventTime = LocalDateTime.now();
         eventTypeCount.clear();
-        threatLevelCount.clear();
+        eventSeverityCount.clear();
         averageAnalysisTimeMs = 0.0;
         totalAnalysisTimeMs = 0;
     }

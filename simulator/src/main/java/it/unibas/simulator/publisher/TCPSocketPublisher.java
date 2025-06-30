@@ -1,7 +1,7 @@
 package it.unibas.simulator.publisher;
 
-import it.unibas.common.model.Event;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import it.unibas.common.model.Event;
 import it.unibas.common.util.ObjectMapperFactory;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +33,7 @@ public class TCPSocketPublisher {
                     log.info("[Simulator] IDS connected: {}", client.getInetAddress());
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("[Simulator] Error starting TCP Publisher: {}", e.getMessage());
             }
         }).start();
     }
@@ -56,7 +56,7 @@ public class TCPSocketPublisher {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error broadcasting event: {}", e.getMessage());
         }
     }
 
@@ -65,7 +65,6 @@ public class TCPSocketPublisher {
             if (serverSocket != null && !serverSocket.isClosed()) {
                 serverSocket.close();
             }
-            // Chiudere tutti i client
             for (Socket client : clients) {
                 try {
                     client.close();

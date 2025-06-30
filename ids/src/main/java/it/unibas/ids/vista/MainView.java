@@ -188,7 +188,7 @@ public class MainView extends JPanel implements IMainView {
             Object[] rowData = {
                     alert.getAlertId(),
                     alert.getTimestamp().format(ViewUtil.getFormatter()),
-                    alert.getThreatLevel().toString(),
+                    alert.getEventSeverity().toString(),
                     alert.getAlertType(),
                     alert.getStatus().toString()
             };
@@ -201,7 +201,7 @@ public class MainView extends JPanel implements IMainView {
             alertTable.setRowSelectionInterval(lastRow, lastRow);
 
             // Log dell'aggiunta
-            log.debug("Alert aggiunto alla tabella: {} - {}", alert.getAlertId(), alert.getThreatLevel());
+            log.debug("Alert aggiunto alla tabella: {} - {}", alert.getAlertId(), alert.getEventSeverity());
         });
     }
 

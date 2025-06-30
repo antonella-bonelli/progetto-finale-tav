@@ -17,7 +17,6 @@ public class FileAccessEvent extends Event {
     private String filePath;
 
     @Builder.Default
-    //ToDo: trasformare accessType in un enum con casi READ, WRITE,DELETE, EXECUTE, CREATE, MODIFY
     private String accessType = "READ";
 
     @Builder.Default

@@ -1,14 +1,11 @@
 package it.unibas.ids.model;
 
-import it.unibas.common.model.Event;
+import it.unibas.common.model.EventSeverity;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NonNull;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Data
@@ -23,7 +20,7 @@ public class Alert {
     private LocalDateTime timestamp = LocalDateTime.now();
 
     @NonNull
-    private ThreatLevel threatLevel;
+    private EventSeverity eventSeverity;
 
     @NonNull
     private String alertType;

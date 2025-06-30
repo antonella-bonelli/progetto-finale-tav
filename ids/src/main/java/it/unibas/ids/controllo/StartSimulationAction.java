@@ -2,8 +2,6 @@ package it.unibas.ids.controllo;
 
 import it.unibas.ids.collector.EventCollector;
 import it.unibas.ids.collector.TCPEventSubscriber;
-import it.unibas.ids.vista.IMainView;
-import it.unibas.ids.vista.IVista;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import lombok.extern.slf4j.Slf4j;
@@ -14,8 +12,8 @@ import java.awt.event.ActionEvent;
 @Singleton
 @Slf4j
 public class StartSimulationAction extends AbstractAction {
-    private EventCollector collector;
-    private TCPEventSubscriber tcpSubscriber;
+    private final EventCollector collector;
+    private final TCPEventSubscriber tcpSubscriber;
 
     @Inject()
     public StartSimulationAction(EventCollector collector, TCPEventSubscriber tcpSubscriber) {

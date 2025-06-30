@@ -1,13 +1,16 @@
 package it.unibas.ids.vista;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import it.unibas.common.model.Event;
 import it.unibas.common.model.EventGroup;
 import it.unibas.common.model.EventSeverity;
 import it.unibas.common.model.EventType;
-import it.unibas.common.util.AnalysisContextHolder;
+import it.unibas.ids.Applicazione;
 import it.unibas.ids.analyzer.*;
 import it.unibas.ids.model.Alert;
 import it.unibas.ids.util.ViewUtil;
+import jakarta.inject.Named;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
@@ -17,8 +20,11 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static it.unibas.ids.Costanti.AZIONE_TESTA_CONFIG;
+
 @Slf4j
-public class CloneConfigDialog extends JDialog {
+@Singleton
+public class CloneConfigDialog extends JDialog implements ICloneConfigDialog {
 
     private JComboBox<String> analyzerTypeCombo;
 
@@ -36,22 +42,40 @@ public class CloneConfigDialog extends JDialog {
     private JButton saveButton;
 
     private List<Event> events;
-    private AdvancedAnalyzer advancedAnalyzer;
-    private SimpleAnalyzer simpleAnalyzer;
     private IEventAnalyzer mainAnalyzer;
-    private AnalysisContext analysisContext;
+    @Inject
+    @Named("advancedAnalyzer")
+    private AdvancedAnalyzer advancedAnalyzer;
+    @Inject
+    @Named("simpleAnalyzer")
+    private SimpleAnalyzer simpleAnalyzer;
 
     private JPanel analyzerConfigPanel;
     private JPanel simplePanel;
     private JPanel advancedPanel;
+    private JPanel configPanel;
 
-    public CloneConfigDialog(List<Event> events, AdvancedAnalyzer aa, SimpleAnalyzer sa, AnalysisContext analysisContext) {
-        this.events = events;
-        this.advancedAnalyzer = aa;
-        this.simpleAnalyzer = sa;
-        this.mainAnalyzer = analysisContext.getCurrentStrategy();
-        this.analysisContext = analysisContext;
+
+    public CloneConfigDialog() {
+//        this.events = events;
+//        this.mainAnalyzer = Applicazione.getInstance().getComponentInstance(AnalysisContext.class).getCurrentStrategy();
+//        this.simpleAnalyzer = Applicazione.getInstance().getComponentInstance(SimpleAnalyzer.class);
+//        this.advancedAnalyzer = Applicazione.getInstance().getComponentInstance(AdvancedAnalyzer.class);
+//
         initUI();
+    }
+
+    @Override
+    public void showDialog(List<Event> events, IEventAnalyzer mainAnalyzer) {
+        this.events = events;
+        this.mainAnalyzer = mainAnalyzer;
+        //initUI();
+        //setVisible(true);
+    }
+
+    @Override
+    public void showMe(boolean modal) {
+        setVisible(modal);
     }
 
     private void initUI() {
@@ -61,12 +85,14 @@ public class CloneConfigDialog extends JDialog {
         setLayout(new BorderLayout());
 
         // Config Panel sopra
-        JPanel configPanel = new JPanel(new BorderLayout());
+        configPanel = new JPanel(new BorderLayout());
         JPanel selectAnalyzerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        analyzerTypeCombo = new JComboBox<>(new String[]{EAnalysisType.ADVANCED.getDescription(), EAnalysisType.SIMPLE.getDescription()});
-        analyzerTypeCombo.setSelectedItem(mainAnalyzer.getAnalysisType().getDescription());
-        log.debug("\uD83D\uDEA8 \uD83D\uDEA8selected: {}", analyzerTypeCombo.getSelectedItem());
-        log.debug("\uD83D\uDEA8 \uD83D\uDEA8Analyzer: {}", mainAnalyzer.getAnalyzerName());
+        analyzerTypeCombo = new JComboBox<>(new String[]{
+                EAnalysisType.ADVANCED.getDescription(),
+                EAnalysisType.SIMPLE.getDescription()
+        });
+        //analyzerTypeCombo.setSelectedItem(mainAnalyzer.getAnalysisType().getDescription());
+
         selectAnalyzerPanel.add(new JLabel("Analyzer:"));
         selectAnalyzerPanel.add(analyzerTypeCombo);
         configPanel.add(selectAnalyzerPanel, BorderLayout.NORTH);
@@ -75,17 +101,18 @@ public class CloneConfigDialog extends JDialog {
         analyzerConfigPanel = new JPanel(new CardLayout());
         simplePanel = createSimpleAnalyzerConfigPanel();
         advancedPanel = createAdvancedConfigPanel();
-        if(mainAnalyzer instanceof SimpleAnalyzer) {
-            analyzerConfigPanel.add(simplePanel, EAnalysisType.SIMPLE.getDescription());
-            analyzerConfigPanel.add(advancedPanel, EAnalysisType.ADVANCED.getDescription());
-        } else {
-            analyzerConfigPanel.add(advancedPanel, EAnalysisType.ADVANCED.getDescription());
-            analyzerConfigPanel.add(simplePanel, EAnalysisType.SIMPLE.getDescription());
-        }
-        configPanel.add(analyzerConfigPanel, BorderLayout.CENTER);
+//        if (mainAnalyzer instanceof SimpleAnalyzer) {
+//            analyzerConfigPanel.add(simplePanel, EAnalysisType.SIMPLE.getDescription());
+//            analyzerConfigPanel.add(advancedPanel, EAnalysisType.ADVANCED.getDescription());
+//        } else {
+//            analyzerConfigPanel.add(advancedPanel, EAnalysisType.ADVANCED.getDescription());
+//            analyzerConfigPanel.add(simplePanel, EAnalysisType.SIMPLE.getDescription());
+//        }
+//        configPanel.add(analyzerConfigPanel, BorderLayout.CENTER);
 
         // Cambio configurazione dinamica
         analyzerTypeCombo.addActionListener(e -> {
+            log.debug("ActionListener triggered: {}", analyzerTypeCombo.getSelectedItem());
             CardLayout cl = (CardLayout) (analyzerConfigPanel.getLayout());
             cl.show(analyzerConfigPanel, (String) analyzerTypeCombo.getSelectedItem());
         });
@@ -102,7 +129,7 @@ public class CloneConfigDialog extends JDialog {
         logArea.setForeground(Color.GREEN);
         logArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
         leftPanel.add(new JScrollPane(logArea), BorderLayout.CENTER);
-        initLogArea();
+        //initLogArea();
 
         // Alert table area
         JPanel rightPanel = new JPanel(new BorderLayout());
@@ -121,7 +148,7 @@ public class CloneConfigDialog extends JDialog {
 
         // Bottone analizza
         analyzeButton = new JButton("Analizza eventi ora");
-        analyzeButton.addActionListener(e -> runCloneAnalysis());
+        //analyzeButton.addActionListener(e -> runCloneAnalysis());
 
         // Bottone Salva
         saveButton = new JButton("Salva configurazione");
@@ -136,10 +163,14 @@ public class CloneConfigDialog extends JDialog {
         add(mainSplit, BorderLayout.CENTER);
         add(bottomPanel, BorderLayout.SOUTH);
 
-        // Precompila pannelli con valori correnti
-        updateConfigPanelsFromRules();
-
         setLocationRelativeTo(null);
+    }
+
+    public void setButtonAction(String button, Action action) {
+        if (button.equals(AZIONE_TESTA_CONFIG)) {
+            analyzeButton.setAction(action);
+        }
+
     }
 
     private JPanel createSimpleAnalyzerConfigPanel() {
@@ -169,6 +200,11 @@ public class CloneConfigDialog extends JDialog {
         panel.add(groupsPanel);
 
         return panel;
+    }
+
+    public void resetAlertTable() {
+        alertTableModel.setRowCount(0);
+        alertTableModel.fireTableRowsUpdated(0, alertTableModel.getRowCount() - 1);
     }
 
     private JPanel createAdvancedConfigPanel() {
@@ -222,11 +258,95 @@ public class CloneConfigDialog extends JDialog {
         return panel;
     }
 
-    private void updateConfigPanelsFromRules() {
+    public AnalysisRules getUpdatedRules() {
+        String selectedAnalyzer = (String) analyzerTypeCombo.getSelectedItem();
+        log.debug("**** selectedAnalyzer: {}", selectedAnalyzer);
+        if (EAnalysisType.ADVANCED.getDescription().equals(selectedAnalyzer)) {
+            log.debug("**** selectedAnalyzer");
+            return getAdvancedRules();
+        } else if (EAnalysisType.SIMPLE.getDescription().equals(selectedAnalyzer)) {
+            log.debug("**** simple rules");
+            return getSimpleRules();
+        }
+        return null;
+    }
+
+    public String getSelectedAnalyzer() {
+        return (String) analyzerTypeCombo.getSelectedItem();
+    }
+
+    private AnalysisRules getSimpleRules() {
+        // Aggiorna levels
+        Set<EventSeverity> selectedLevels = severityCheckBoxMapSimple.entrySet().stream()
+                .filter(e -> e.getValue().isSelected())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+
+        // Aggiorna groups
+        Set<EventGroup> selectedGroups = groupCheckBoxMapSimple.entrySet().stream()
+                .filter(e -> e.getValue().isSelected())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+
+        return AnalysisRules.builder()
+                .groups(selectedGroups)
+                .levels(selectedLevels)
+                .build();
+    }
+
+    private AnalysisRules getAdvancedRules() {
+        // Aggiorna levels in base ai checkbox
+        Set<EventSeverity> selectedLevels = severityCheckBoxMapAdvanced.entrySet().stream()
+                .filter(e -> e.getValue().isSelected())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+
+        Map<EventType, Integer> thresholds = new HashMap<>();
+        for (Map.Entry<EventType, JTextField> entry : thresholdFieldMap.entrySet()) {
+            try {
+                int threshold = Integer.parseInt(entry.getValue().getText());
+                thresholds.put(entry.getKey(), threshold);
+            } catch (NumberFormatException ex) {
+                thresholds.put(entry.getKey(), Integer.MAX_VALUE);
+            }
+        }
+
+        return AnalysisRules.builder()
+                .eventThresholds(thresholds)
+                .levels(selectedLevels)
+                .build();
+    }
+
+    public void updateAlertTable(List<Alert> alerts) {
+        for (Alert alert : alerts) {
+            alertTableModel.addRow(new Object[]{
+                    alert.getAlertId(),
+                    alert.getTimestamp().format(ViewUtil.getFormatter()),
+                    alert.getEventSeverity().toString(),
+                    alert.getAlertType(),
+                    alert.getStatus().toString()
+            });
+        }
+        saveButton.setEnabled(true);
+    }
+
+    @Override
+    public void updateConfigPanelsFromRules() {
+        log.debug("--- {}", mainAnalyzer.getAnalysisType().getDescription());
+        analyzerTypeCombo.setSelectedItem(mainAnalyzer.getAnalysisType().getDescription());
+        log.debug("!!! {} - {}", analyzerTypeCombo, analyzerTypeCombo.getSelectedItem());
+        if (mainAnalyzer instanceof SimpleAnalyzer) {
+            analyzerConfigPanel.add(simplePanel, EAnalysisType.SIMPLE.getDescription());
+            analyzerConfigPanel.add(advancedPanel, EAnalysisType.ADVANCED.getDescription());
+        } else {
+            analyzerConfigPanel.add(advancedPanel, EAnalysisType.ADVANCED.getDescription());
+            analyzerConfigPanel.add(simplePanel, EAnalysisType.SIMPLE.getDescription());
+        }
+        configPanel.add(analyzerConfigPanel, BorderLayout.CENTER);
         AnalysisRules simpleRules = simpleAnalyzer.getRules();
         AnalysisRules advancedRules = advancedAnalyzer.getRules();
-        if(this.mainAnalyzer instanceof SimpleAnalyzer) {
-            simpleRules =  this.mainAnalyzer.getRules();
+        if (this.mainAnalyzer instanceof SimpleAnalyzer) {
+            simpleRules = this.mainAnalyzer.getRules();
         } else {
             advancedRules = this.mainAnalyzer.getRules();
         }
@@ -254,89 +374,90 @@ public class CloneConfigDialog extends JDialog {
         }
     }
 
-    private void runCloneAnalysis() {
-        alertTableModel.setRowCount(0);
+//    private void runCloneAnalysis() {
+//        alertTableModel.setRowCount(0);
+//
+//        String selectedAnalyzer = (String) analyzerTypeCombo.getSelectedItem();
+//        AnalysisRules rules;
+//        IEventAnalyzer analyzer;
+//        if (EAnalysisType.ADVANCED.getDescription().equals(selectedAnalyzer)) {
+//            // Clona e aggiorna le regole
+//            rules = advancedAnalyzer.getRules().clone();
+//
+//            // Aggiorna levels in base ai checkbox
+//            Set<EventSeverity> selectedLevels = severityCheckBoxMapAdvanced.entrySet().stream()
+//                    .filter(e -> e.getValue().isSelected())
+//                    .map(Map.Entry::getKey)
+//                    .collect(Collectors.toSet());
+//            rules.setLevels(selectedLevels);
+//
+//            // Aggiorna soglie in base ai campi
+//            Map<EventType, Integer> thresholds = new HashMap<>();
+//            for (Map.Entry<EventType, JTextField> entry : thresholdFieldMap.entrySet()) {
+//                try {
+//                    int threshold = Integer.parseInt(entry.getValue().getText());
+//                    thresholds.put(entry.getKey(), threshold);
+//                } catch (NumberFormatException ex) {
+//                    thresholds.put(entry.getKey(), Integer.MAX_VALUE);
+//                }
+//            }
+//            rules.setEventThresholds(thresholds);
+//
+//            analyzer = advancedAnalyzer.clone();
+//            analyzer.updateRules(rules);
+//        } else {
+//            rules = simpleAnalyzer.getRules();
+//
+//            // Aggiorna levels
+//            Set<EventSeverity> selectedLevels = severityCheckBoxMapSimple.entrySet().stream()
+//                    .filter(e -> e.getValue().isSelected())
+//                    .map(Map.Entry::getKey)
+//                    .collect(Collectors.toSet());
+//            rules.setLevels(selectedLevels);
+//
+//            // Aggiorna groups
+//            Set<EventGroup> selectedGroups = groupCheckBoxMapSimple.entrySet().stream()
+//                    .filter(e -> e.getValue().isSelected())
+//                    .map(Map.Entry::getKey)
+//                    .collect(Collectors.toSet());
+//            rules.setGroups(selectedGroups);
+//
+//            analyzer = simpleAnalyzer.clone();
+//            analyzer.updateRules(rules);
+//        }
+//
+//        log.debug(" Analyzer: {}", analyzer.getAnalyzerName());
+//        // Svuota anche gli allarmi precedenti nell'AlertManager dell'analyzer
+//        analyzer.getManager().clearAll();
+//
+//        // Analizza eventi
+//        AnalysisContextHolder.setModalAnalysis(true);
+//        try {
+//            for (Event event : events) {
+//                analyzer.analyzeEvent(event.clone());
+//            }
+//        } finally {
+//            AnalysisContextHolder.setModalAnalysis(false);
+//        }
+//
+//        // Recupera e mostra Alert
+//        List<Alert> alerts = analyzer.getManager().getActiveAlerts();
+//        mainAnalyzer = analyzer;
+//        log.debug("ci sono {} allarmi", alerts.size());
+//        for (Alert alert : alerts) {
+//            alertTableModel.addRow(new Object[]{
+//                    alert.getAlertId(),
+//                    alert.getTimestamp().format(ViewUtil.getFormatter()),
+//                    alert.getEventSeverity().toString(),
+//                    alert.getAlertType(),
+//                    alert.getStatus().toString()
+//            });
+//        }
+//        saveButton.setEnabled(true);
+//    }
 
-        String selectedAnalyzer = (String) analyzerTypeCombo.getSelectedItem();
-        AnalysisRules rules;
-        IEventAnalyzer analyzer;
-        if (EAnalysisType.ADVANCED.getDescription().equals(selectedAnalyzer)) {
-            // Clona e aggiorna le regole
-            rules = advancedAnalyzer.getRules().clone();
-
-            // Aggiorna levels in base ai checkbox
-            Set<EventSeverity> selectedLevels = severityCheckBoxMapAdvanced.entrySet().stream()
-                    .filter(e -> e.getValue().isSelected())
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toSet());
-            rules.setLevels(selectedLevels);
-
-            // Aggiorna soglie in base ai campi
-            Map<EventType, Integer> thresholds = new HashMap<>();
-            for (Map.Entry<EventType, JTextField> entry : thresholdFieldMap.entrySet()) {
-                try {
-                    int threshold = Integer.parseInt(entry.getValue().getText());
-                    thresholds.put(entry.getKey(), threshold);
-                } catch (NumberFormatException ex) {
-                    thresholds.put(entry.getKey(), Integer.MAX_VALUE);
-                }
-            }
-            rules.setEventThresholds(thresholds);
-
-            analyzer = advancedAnalyzer.clone();
-            analyzer.updateRules(rules);
-        } else {
-            rules = simpleAnalyzer.getRules();
-
-            // Aggiorna levels
-            Set<EventSeverity> selectedLevels = severityCheckBoxMapSimple.entrySet().stream()
-                    .filter(e -> e.getValue().isSelected())
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toSet());
-            rules.setLevels(selectedLevels);
-
-            // Aggiorna groups
-            Set<EventGroup> selectedGroups = groupCheckBoxMapSimple.entrySet().stream()
-                    .filter(e -> e.getValue().isSelected())
-                    .map(Map.Entry::getKey)
-                    .collect(Collectors.toSet());
-            rules.setGroups(selectedGroups);
-
-            analyzer = simpleAnalyzer.clone();
-            analyzer.updateRules(rules);
-        }
-
-        log.debug(" Analyzer: {}", analyzer.getAnalyzerName());
-        // Svuota anche gli allarmi precedenti nell'AlertManager dell'analyzer
-        analyzer.getManager().clearAll();
-
-        // Analizza eventi
-        AnalysisContextHolder.setModalAnalysis(true);
-        try {
-            for (Event event : events) {
-                analyzer.analyzeEvent(event.clone());
-            }
-        } finally {
-            AnalysisContextHolder.setModalAnalysis(false);
-        }
-
-        // Recupera e mostra Alert
-        List<Alert> alerts = analyzer.getManager().getActiveAlerts();
-        mainAnalyzer = analyzer;
-        log.debug("ci sono {} allarmi", alerts.size());
-        for (Alert alert : alerts) {
-            alertTableModel.addRow(new Object[]{
-                    alert.getAlertId(),
-                    alert.getTimestamp().format(ViewUtil.getFormatter()),
-                    alert.getThreatLevel().toString(),
-                    alert.getAlertType(),
-                    alert.getStatus().toString()
-            });
-        }
-        saveButton.setEnabled(true);
-    }
-
-    private void initLogArea() {
+    @Override
+    public void initLogArea() {
         for (Event event : events) {
             logArea.append(ViewUtil.formatLogMessage(event) + "\n");
         }
@@ -344,10 +465,8 @@ public class CloneConfigDialog extends JDialog {
 
     private void saveCurrentConfigToMainAnalyzer() {
 
-        // Applica la nuova configurazione al mainAnalyzer
-        //mainAnalyzer.updateRules(rules);
-        log.info("Analyzer: {} - {}", mainAnalyzer.getAnalyzerName(),mainAnalyzer.getRules().toString());
-        this.analysisContext.setStrategy(mainAnalyzer);
+        log.info("Analyzer: {} - {}", mainAnalyzer.getAnalyzerName(), mainAnalyzer.getRules().toString());
+        Applicazione.getInstance().getComponentInstance(AnalysisContext.class).setStrategy(mainAnalyzer);
         JOptionPane.showMessageDialog(this, "Configurazione salvata e applicata all'analyzer principale!");
         saveButton.setEnabled(false);
     }

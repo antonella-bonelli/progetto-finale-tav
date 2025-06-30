@@ -29,6 +29,8 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.30")
 
     implementation("com.google.inject:guice:7.0.0")
+    implementation("com.google.inject.extensions:guice-assistedinject:7.0.0")
+
 
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.6")

@@ -1,12 +1,13 @@
 package it.unibas.analyzer;
 
+import it.unibas.common.model.EventSeverity;
 import it.unibas.common.model.EventType;
 import it.unibas.ids.analyzer.AnalysisStats;
-import it.unibas.ids.model.ThreatLevel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AnalysisStatsTest {
 
@@ -45,12 +46,12 @@ public class AnalysisStatsTest {
 
     @Test
     void shouldIncrementThreatLevelCorrectly() {
-        stats.incrementThreatLevel(ThreatLevel.HIGH);
-        stats.incrementThreatLevel(ThreatLevel.HIGH);
-        stats.incrementThreatLevel(ThreatLevel.CRITICAL);
+        stats.incrementEventSeverity(EventSeverity.HIGH);
+        stats.incrementEventSeverity(EventSeverity.HIGH);
+        stats.incrementEventSeverity(EventSeverity.CRITICAL);
 
-        assertEquals(2, stats.getThreatLevelCount().get(ThreatLevel.HIGH));
-        assertEquals(1, stats.getThreatLevelCount().get(ThreatLevel.CRITICAL));
+        assertEquals(2, stats.getEventSeverityCount().get(EventSeverity.HIGH));
+        assertEquals(1, stats.getEventSeverityCount().get(EventSeverity.CRITICAL));
     }
 
     @Test
@@ -75,6 +76,6 @@ public class AnalysisStatsTest {
         assertEquals(0, stats.getAlertsGenerated());
         assertEquals(0.0, stats.getAverageAnalysisTimeMs());
         assertTrue(stats.getEventTypeCount().isEmpty());
-        assertTrue(stats.getThreatLevelCount().isEmpty());
+        assertTrue(stats.getEventSeverityCount().isEmpty());
     }
 }

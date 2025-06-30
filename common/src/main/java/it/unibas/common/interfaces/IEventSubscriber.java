@@ -10,8 +10,4 @@ public interface IEventSubscriber {
         return this.getClass().getSimpleName();
     }
 
-    default boolean isInterestedIn(Event event) {
-        return true;
-    }
-
 }

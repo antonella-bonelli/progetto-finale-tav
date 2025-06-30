@@ -35,8 +35,7 @@ public abstract class Event implements Cloneable {
     @Override
     public Event clone() {
         try {
-            Event cloned = (Event) super.clone();
-            return cloned;
+            return (Event) super.clone();
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException("Clone not supported", e);
         }

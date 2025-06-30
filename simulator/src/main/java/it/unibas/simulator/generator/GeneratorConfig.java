@@ -6,7 +6,7 @@ import lombok.NonNull;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Properties;
 
 @Data
 @Builder
@@ -20,9 +20,6 @@ public class GeneratorConfig {
 
     @Builder.Default
     private double suspiciousEventProbability = 0.15;
-
-    @Builder.Default
-    private boolean debugMode = false;
 
     @Builder.Default
     private String sourceId = "simulator";
@@ -58,18 +55,17 @@ public class GeneratorConfig {
         long interval = Long.parseLong(props.getProperty("simulator.event.interval", "1000"));
         double suspiciousProbability = Double.parseDouble(
                 props.getProperty("simulator.suspicious.probability", "0.15"));
-        boolean debugMode = Boolean.parseBoolean(props.getProperty("simulator.debug", "false"));
+        int numberOfSources = Integer.parseInt(props.getProperty("simulator.sources", "2"));
         int maxEvents = Integer.parseInt(props.getProperty("simulator.max.events", "10000"));
         String sourceId = props.getProperty("simulator.source.id", "simulator");
         int port = Integer.parseInt(props.getProperty("simulator.port", "9876"));
-
         return GeneratorConfig.builder()
                 .generatorName("EventGenerator")
                 .intervalMs(interval)
                 .suspiciousEventProbability(suspiciousProbability)
-                .debugMode(debugMode)
                 .maxEvents(maxEvents)
                 .sourceId(sourceId)
+                .numberOfSources(numberOfSources)
                 .port(port)
                 .build();
     }
@@ -102,7 +98,6 @@ public class GeneratorConfig {
         System.out.println("Name: " + generatorName);
         System.out.println("Interval: " + intervalMs + "ms");
         System.out.println("Suspicious probability: " + suspiciousEventProbability);
-        System.out.println("Debug mode: " + debugMode);
         System.out.println("Source ID: " + sourceId);
         System.out.println("Max events: " + (maxEvents == -1 ? "unlimited" : maxEvents));
     }

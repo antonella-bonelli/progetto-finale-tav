@@ -16,7 +16,6 @@ public class GeneratorConfigTest {
         assertEquals("TestGenerator", config.getGeneratorName());
         assertEquals(1000, config.getIntervalMs());
         assertEquals(0.15, config.getSuspiciousEventProbability(), 0.001);
-        assertFalse(config.isDebugMode());
         assertEquals("simulator", config.getSourceId());
         assertEquals(1000, config.getMaxEvents());
     }
@@ -27,7 +26,6 @@ public class GeneratorConfigTest {
                 .generatorName("CustomGenerator")
                 .intervalMs(500)
                 .suspiciousEventProbability(0.3)
-                .debugMode(true)
                 .sourceId("custom-source")
                 .maxEvents(100)
                 .build();
@@ -35,7 +33,6 @@ public class GeneratorConfigTest {
         assertEquals("CustomGenerator", config.getGeneratorName());
         assertEquals(500, config.getIntervalMs());
         assertEquals(0.3, config.getSuspiciousEventProbability(), 0.001);
-        assertTrue(config.isDebugMode());
         assertEquals("custom-source", config.getSourceId());
         assertEquals(100, config.getMaxEvents());
     }
@@ -66,7 +63,7 @@ public class GeneratorConfigTest {
                 .suspiciousEventProbability(0.5)
                 .build();
 
-        assertDoesNotThrow(() -> config.validate());
+        assertDoesNotThrow(config::validate);
     }
 
     @Test
@@ -78,7 +75,7 @@ public class GeneratorConfigTest {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> config.validate()
+                config::validate
         );
         assertTrue(exception.getMessage().contains("Interval must be positive"));
     }
@@ -92,7 +89,7 @@ public class GeneratorConfigTest {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> config.validate()
+                config::validate
         );
         assertTrue(exception.getMessage().contains("Interval must be positive"));
     }
@@ -106,7 +103,7 @@ public class GeneratorConfigTest {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> config.validate()
+                config::validate
         );
         assertTrue(exception.getMessage().contains("Suspicious event probability must be between 0.0 and 1.0"));
     }
@@ -120,7 +117,7 @@ public class GeneratorConfigTest {
 
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
-                () -> config.validate()
+                config::validate
         );
         assertTrue(exception.getMessage().contains("Suspicious event probability must be between 0.0 and 1.0"));
     }
@@ -139,8 +136,8 @@ public class GeneratorConfigTest {
                 .intervalMs(Integer.MAX_VALUE)
                 .build();
 
-        assertDoesNotThrow(() -> config1.validate());
-        assertDoesNotThrow(() -> config2.validate());
+        assertDoesNotThrow(config1::validate);
+        assertDoesNotThrow(config2::validate);
     }
 
     @Test
@@ -151,7 +148,6 @@ public class GeneratorConfigTest {
         assertEquals("DefaultGenerator", config.getGeneratorName());
         assertEquals(2000, config.getIntervalMs());
         assertEquals(0.20, config.getSuspiciousEventProbability(), 0.001);
-        assertFalse(config.isDebugMode());
         assertEquals("simulator", config.getSourceId());
         assertEquals(1000, config.getMaxEvents());
     }
@@ -162,7 +158,6 @@ public class GeneratorConfigTest {
                 .generatorName("TestGenerator")
                 .intervalMs(1000)
                 .suspiciousEventProbability(0.3)
-                .debugMode(true)
                 .maxEvents(100)
                 .sourceId("test")
                 .build();
@@ -171,7 +166,6 @@ public class GeneratorConfigTest {
                 .generatorName("TestGenerator")
                 .intervalMs(1000)
                 .suspiciousEventProbability(0.3)
-                .debugMode(true)
                 .maxEvents(100)
                 .sourceId("test")
                 .build();

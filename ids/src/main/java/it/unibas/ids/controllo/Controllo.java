@@ -45,6 +45,7 @@ public class Controllo implements IControllo {
     public void setAzioneAvviaSimulazione(StartSimulationAction azione) {
         this.addAction(azione);
     }
+
     @Inject
     public void setAzioneStopSimulazione(StopSimulationAction azione) {
         this.addAction(azione);
@@ -52,6 +53,11 @@ public class Controllo implements IControllo {
 
     @Inject
     public void setAzioneClonaConfigurazione(CloneConfigAction azione) {
+        this.addAction(azione);
+    }
+
+    @Inject
+    public void setAzioneTestConfigurazione(TestConfigAction azione) {
         this.addAction(azione);
     }
 

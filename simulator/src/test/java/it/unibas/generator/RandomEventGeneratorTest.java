@@ -1,14 +1,19 @@
 package it.unibas.generator;
 
-import it.unibas.simulator.generator.GeneratorConfig;
-import it.unibas.simulator.generator.RandomEventGenerator;
 import it.unibas.common.model.Event;
 import it.unibas.common.model.EventSeverity;
 import it.unibas.common.model.EventType;
+import it.unibas.simulator.generator.GeneratorConfig;
+import it.unibas.simulator.generator.RandomEventGenerator;
 import org.junit.jupiter.api.*;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,13 +28,14 @@ public class RandomEventGeneratorTest {
                 .generatorName("TestGenerator")
                 .intervalMs(100)
                 .suspiciousEventProbability(0.5)
-                .debugMode(true)
                 .maxEvents(10)
                 .numberOfSources(3)
                 .build();
 
         generator = new RandomEventGenerator(testConfig);
-        generator.setEventConsumer(event -> {System.out.println("[test event consumer] "+ event.getType());});
+        generator.setEventConsumer(event -> {
+            System.out.println("[test event consumer] " + event.getType());
+        });
     }
 
     @AfterEach
@@ -242,7 +248,6 @@ public class RandomEventGeneratorTest {
         generator.stop();
 
 
-
         assertEquals(10, eventCount.get(), "Should generate exactly maxEvents");
         assertEquals(10, generator.getEventsGenerated());
     }
@@ -284,15 +289,10 @@ public class RandomEventGeneratorTest {
 
     @Test
     void shouldResetEventCounter() throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(3);
         generator.setEventConsumer(event -> {
-            if (latch.getCount() > 0) {
-                latch.countDown();
-            }
         });
 
         generator.start();
-        latch.await(2, TimeUnit.SECONDS);
         generator.stop();
 
         assertTrue(generator.getEventsGenerated() > 0);
@@ -309,7 +309,7 @@ public class RandomEventGeneratorTest {
                 .numberOfSources(3)
                 .build();
 
-        System.out.println("*** "+multiSourceConfig.getMaxEvents());
+        System.out.println("*** " + multiSourceConfig.getMaxEvents());
         generator.updateConfig(multiSourceConfig);
         Set<Integer> activeThreadIds = ConcurrentHashMap.newKeySet();
         CountDownLatch latch = new CountDownLatch(10);

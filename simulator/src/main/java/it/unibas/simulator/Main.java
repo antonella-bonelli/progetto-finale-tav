@@ -1,16 +1,14 @@
 package it.unibas.simulator;
 
+import it.unibas.simulator.generator.GeneratorConfig;
 import it.unibas.simulator.generator.RandomEventGenerator;
 import it.unibas.simulator.publisher.ConsoleEventSubscriber;
 import it.unibas.simulator.publisher.EventPublisher;
-import it.unibas.simulator.generator.GeneratorConfig;
 import it.unibas.simulator.publisher.TCPSocketPublisher;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
 
 
 @Slf4j
@@ -21,16 +19,6 @@ public class Main {
     private static final CountDownLatch initLatch = new CountDownLatch(0);
     private static Thread mainThread;
     private static TCPSocketPublisher tcpPublisher;
-
-    public static boolean isInitialized() {
-        return initialized.get();
-    }
-
-    public static boolean isRunning() {
-        return initialized.get() &&
-                publisher != null && publisher.isRunning() &&
-                generator != null && generator.isActive();
-    }
 
     public static void shutdown() {
         log.info("Shutdow requested...");
@@ -102,11 +90,10 @@ public class Main {
             } else if (args.length > 0) {
                 log.error("Error: wrong args");
             } else {
-                runMonitoringMode(30);
+                runMonitoringMode();
             }
         } catch (Exception e) {
             log.error("Error: {}", e.getMessage());
-            e.printStackTrace();
             initLatch.countDown();
         } finally {
             shutdown();
@@ -115,17 +102,16 @@ public class Main {
 
     private static void runDaemonMode() throws InterruptedException {
         log.info("Running in daemon mode. Press cmd + c to stop");
-
         while (!Thread.currentThread().isInterrupted()) {
             Thread.sleep(30000);
             printStatistics();
         }
     }
 
-    private static void runMonitoringMode(int durationSeconds) throws InterruptedException {
-        log.info("Running in monitoring mode for {} seconds", durationSeconds);
+    private static void runMonitoringMode() throws InterruptedException {
+        log.info("Running in monitoring mode for {} seconds", 30);
 
-        for (int i = 0; i < durationSeconds; i += 5) {
+        for (int i = 0; i < 30; i += 5) {
             Thread.sleep(5000);
 
             log.info("\n📊 Statistiche dopo " + (i + 5) + " secondi:");
@@ -138,22 +124,22 @@ public class Main {
 
     private static void printStatistics() {
         EventPublisher.PublisherStats stats = publisher.getStats();
-        log.info("   Generator: " + generator.getEventsGenerated() + " eventi generati");
-        log.info("   Publisher: " + stats.getPublishedEvents() + " eventi pubblicati");
-        log.info("   Queue: " + stats.getQueueSize() + " eventi in coda");
-        log.info("   Subscribers: " + stats.getSubscriberCount());
-        log.info("   Dropped: " + stats.getDroppedEvents() + " eventi persi");
+        log.info("   Generator: {} eventi generati", generator.getEventsGenerated());
+        log.info("   Publisher: {} eventi pubblicati", stats.publishedEvents());
+        log.info("   Queue: {} eventi in coda", stats.queueSize());
+        log.info("   Subscribers: {}", stats.subscriberCount());
+        log.info("   Dropped: {} eventi persi", stats.droppedEvents());
     }
 
     private static void printFinalStatistics() {
         EventPublisher.PublisherStats finalStats = publisher.getStats();
-        log.info("   Eventi generati: " + generator.getEventsGenerated());
-        log.info("   Eventi pubblicati: " + finalStats.getPublishedEvents());
-        log.info("   Eventi persi: " + finalStats.getDroppedEvents());
+        log.info("   Eventi generati: {}", generator.getEventsGenerated());
+        log.info("   Eventi pubblicati: {}", finalStats.publishedEvents());
+        log.info("   Eventi persi: {}", finalStats.droppedEvents());
 
         double efficiency = generator.getEventsGenerated() > 0 ?
-                (finalStats.getPublishedEvents() * 100.0) / generator.getEventsGenerated() : 100.0;
+                (finalStats.publishedEvents() * 100.0) / generator.getEventsGenerated() : 100.0;
 
-        log.info("   Efficienza: " + String.format("%.1f%%", efficiency));
+        log.info("   Efficienza: {}", String.format("%.1f%%", efficiency));
     }
 }
