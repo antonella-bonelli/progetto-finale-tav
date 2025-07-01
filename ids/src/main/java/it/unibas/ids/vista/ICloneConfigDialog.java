@@ -27,5 +27,12 @@ public interface ICloneConfigDialog {
     void updateConfigPanelsFromRules();
 
     void initLogArea();
-    String getSelectedAnalyzer();
+
+    void setMainAnalyzer(IEventAnalyzer mainAnalyzer);
+
+    IEventAnalyzer getMainAnalyzer();
+
+    void enabledSaveButton();
+
+    String getAnalyzerSelected();
 }

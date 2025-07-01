@@ -4,7 +4,6 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Scopes;
 import com.google.inject.Singleton;
-import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.google.inject.name.Named;
 import it.unibas.common.interfaces.IEventSubscriber;
 import it.unibas.ids.alert.AlertManager;
@@ -14,11 +13,8 @@ import it.unibas.ids.analyzer.IEventAnalyzer;
 import it.unibas.ids.analyzer.SimpleAnalyzer;
 import it.unibas.ids.aspect.SuspiciousEventLoggingAspect;
 import it.unibas.ids.collector.EventCollector;
-import it.unibas.ids.vista.CloneConfigDialogFactory;
 import it.unibas.ids.controllo.Controllo;
 import it.unibas.ids.controllo.IControllo;
-import it.unibas.ids.vista.CloneConfigDialog;
-import it.unibas.ids.vista.ICloneConfigDialog;
 import it.unibas.ids.vista.IVista;
 import it.unibas.ids.vista.Vista;
 import lombok.extern.slf4j.Slf4j;
@@ -36,9 +32,6 @@ public class IdsModule extends AbstractModule {
         bind(AnalysisContext.class).in(Singleton.class);
         bind(IEventSubscriber.class).to(EventCollector.class).in(Scopes.SINGLETON);
         bind(AlertManager.class).in(Scopes.SINGLETON);
-//        install(new FactoryModuleBuilder()
-//                .implement(ICloneConfigDialog.class, CloneConfigDialog.class)
-//                .build(CloneConfigDialogFactory.class));
 
         requestInjection(Aspects.aspectOf(SuspiciousEventLoggingAspect.class));
     }

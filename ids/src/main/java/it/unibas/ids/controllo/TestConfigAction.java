@@ -13,11 +13,13 @@ import lombok.extern.slf4j.Slf4j;
 import javax.swing.*;
 import java.util.List;
 
+import static it.unibas.ids.util.ViewUtil.getAnalysisTypeByDescription;
+
 @Singleton
 @Slf4j
 public class TestConfigAction extends AbstractAction {
     private final AnalysisContext analysisContext;
-    private ICloneConfigDialog dialog;
+    private final ICloneConfigDialog dialog;
     private final EventCollector collector;
 
     @Inject()
@@ -34,11 +36,24 @@ public class TestConfigAction extends AbstractAction {
     public void actionPerformed(java.awt.event.ActionEvent evt) {
         AnalysisContextHolder.setModalAnalysis(true);
         dialog.resetAlertTable();
-        IEventAnalyzer testStrategy = analysisContext.getCurrentStrategy();
+        IEventAnalyzer testStrategy = analysisContext.getCurrentStrategy().clone();
         testStrategy.getManager().clearAll();
-        log.info("?????: {}", dialog.getSelectedAnalyzer());
         AnalysisRules newRules = dialog.getUpdatedRules();
         testStrategy.updateRules(newRules);
+        EAnalysisType type = getAnalysisTypeByDescription(dialog.getAnalyzerSelected());
+        switch (type) {
+            case ADVANCED:
+                AdvancedAnalyzer advancedAnalyzer = new AdvancedAnalyzer(testStrategy.getManager());
+                advancedAnalyzer.updateRules(newRules);
+                testStrategy = advancedAnalyzer;
+                break;
+            case SIMPLE:
+                SimpleAnalyzer simpleAnalyzer = new SimpleAnalyzer(testStrategy.getManager());
+                simpleAnalyzer.updateRules(newRules);
+                testStrategy = simpleAnalyzer;
+                break;
+        }
+        dialog.setMainAnalyzer(testStrategy);
         List<Event> events = collector.getAllEvents();
         for (Event event : events) {
             testStrategy.analyzeEvent(event);

@@ -61,6 +61,11 @@ public class Controllo implements IControllo {
         this.addAction(azione);
     }
 
+    @Inject
+    public void setAzioneSalvaConfigurazione(SaveConfigAction azione) {
+        this.addAction(azione);
+    }
+
     private void addAction(Action action) {
         String name = action.getClass().getName();
         log.info("Action added: {}", name);

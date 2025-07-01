@@ -6,21 +6,25 @@ import it.unibas.common.model.Event;
 import it.unibas.common.model.EventGroup;
 import it.unibas.common.model.EventSeverity;
 import it.unibas.common.model.EventType;
-import it.unibas.ids.Applicazione;
 import it.unibas.ids.analyzer.*;
 import it.unibas.ids.model.Alert;
 import it.unibas.ids.util.ViewUtil;
 import jakarta.inject.Named;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.PlainDocument;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static it.unibas.ids.Costanti.AZIONE_SALVA;
 import static it.unibas.ids.Costanti.AZIONE_TESTA_CONFIG;
+import static it.unibas.ids.util.ViewUtil.getAnalysisTypeByDescription;
 
 @Slf4j
 @Singleton
@@ -29,19 +33,20 @@ public class CloneConfigDialog extends JDialog implements ICloneConfigDialog {
     private JComboBox<String> analyzerTypeCombo;
 
     // Checkbox maps per configurazione dinamica
-    private Map<EventSeverity, JCheckBox> severityCheckBoxMapSimple = new LinkedHashMap<>();
-    private Map<EventGroup, JCheckBox> groupCheckBoxMapSimple = new LinkedHashMap<>();
+    private final Map<EventSeverity, JCheckBox> severityCheckBoxMapSimple = new LinkedHashMap<>();
+    private final Map<EventGroup, JCheckBox> groupCheckBoxMapSimple = new LinkedHashMap<>();
 
-    private Map<EventSeverity, JCheckBox> severityCheckBoxMapAdvanced = new LinkedHashMap<>();
-    private Map<EventType, JTextField> thresholdFieldMap = new LinkedHashMap<>();
+    private final Map<EventSeverity, JCheckBox> severityCheckBoxMapAdvanced = new LinkedHashMap<>();
+    private final Map<EventType, JTextField> thresholdFieldMap = new LinkedHashMap<>();
 
     private JTextArea logArea;
-    private JTable alertTable;
     private DefaultTableModel alertTableModel;
     private JButton analyzeButton;
     private JButton saveButton;
 
     private List<Event> events;
+    @Setter
+    @Getter
     private IEventAnalyzer mainAnalyzer;
     @Inject
     @Named("advancedAnalyzer")
@@ -57,11 +62,6 @@ public class CloneConfigDialog extends JDialog implements ICloneConfigDialog {
 
 
     public CloneConfigDialog() {
-//        this.events = events;
-//        this.mainAnalyzer = Applicazione.getInstance().getComponentInstance(AnalysisContext.class).getCurrentStrategy();
-//        this.simpleAnalyzer = Applicazione.getInstance().getComponentInstance(SimpleAnalyzer.class);
-//        this.advancedAnalyzer = Applicazione.getInstance().getComponentInstance(AdvancedAnalyzer.class);
-//
         initUI();
     }
 
@@ -69,13 +69,16 @@ public class CloneConfigDialog extends JDialog implements ICloneConfigDialog {
     public void showDialog(List<Event> events, IEventAnalyzer mainAnalyzer) {
         this.events = events;
         this.mainAnalyzer = mainAnalyzer;
-        //initUI();
-        //setVisible(true);
     }
 
     @Override
     public void showMe(boolean modal) {
         setVisible(modal);
+    }
+
+    @Override
+    public String getAnalyzerSelected() {
+        return Objects.requireNonNull(analyzerTypeCombo.getSelectedItem()).toString();
     }
 
     private void initUI() {
@@ -91,7 +94,6 @@ public class CloneConfigDialog extends JDialog implements ICloneConfigDialog {
                 EAnalysisType.ADVANCED.getDescription(),
                 EAnalysisType.SIMPLE.getDescription()
         });
-        //analyzerTypeCombo.setSelectedItem(mainAnalyzer.getAnalysisType().getDescription());
 
         selectAnalyzerPanel.add(new JLabel("Analyzer:"));
         selectAnalyzerPanel.add(analyzerTypeCombo);
@@ -101,14 +103,6 @@ public class CloneConfigDialog extends JDialog implements ICloneConfigDialog {
         analyzerConfigPanel = new JPanel(new CardLayout());
         simplePanel = createSimpleAnalyzerConfigPanel();
         advancedPanel = createAdvancedConfigPanel();
-//        if (mainAnalyzer instanceof SimpleAnalyzer) {
-//            analyzerConfigPanel.add(simplePanel, EAnalysisType.SIMPLE.getDescription());
-//            analyzerConfigPanel.add(advancedPanel, EAnalysisType.ADVANCED.getDescription());
-//        } else {
-//            analyzerConfigPanel.add(advancedPanel, EAnalysisType.ADVANCED.getDescription());
-//            analyzerConfigPanel.add(simplePanel, EAnalysisType.SIMPLE.getDescription());
-//        }
-//        configPanel.add(analyzerConfigPanel, BorderLayout.CENTER);
 
         // Cambio configurazione dinamica
         analyzerTypeCombo.addActionListener(e -> {
@@ -121,15 +115,9 @@ public class CloneConfigDialog extends JDialog implements ICloneConfigDialog {
         JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
         // Log area
-        JPanel leftPanel = new JPanel(new BorderLayout());
-        leftPanel.setBorder(BorderFactory.createTitledBorder("📋 Event Log"));
-        logArea = new JTextArea();
-        logArea.setEditable(false);
-        logArea.setBackground(Color.BLACK);
-        logArea.setForeground(Color.GREEN);
-        logArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
+        JPanel leftPanel = ViewUtil.getLeftPanel();
+        logArea = ViewUtil.getLogArea();
         leftPanel.add(new JScrollPane(logArea), BorderLayout.CENTER);
-        //initLogArea();
 
         // Alert table area
         JPanel rightPanel = new JPanel(new BorderLayout());
@@ -137,7 +125,7 @@ public class CloneConfigDialog extends JDialog implements ICloneConfigDialog {
 
         String[] alertColumns = {"Id", "Time", "Severity", "Type", "Status"};
         alertTableModel = new DefaultTableModel(alertColumns, 0);
-        alertTable = new JTable(alertTableModel);
+        JTable alertTable = new JTable(alertTableModel);
         alertTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         rightPanel.add(new JScrollPane(alertTable), BorderLayout.CENTER);
@@ -148,12 +136,10 @@ public class CloneConfigDialog extends JDialog implements ICloneConfigDialog {
 
         // Bottone analizza
         analyzeButton = new JButton("Analizza eventi ora");
-        //analyzeButton.addActionListener(e -> runCloneAnalysis());
 
         // Bottone Salva
         saveButton = new JButton("Salva configurazione");
         saveButton.setEnabled(false);
-        saveButton.addActionListener(e -> saveCurrentConfigToMainAnalyzer());
 
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 16, 8));
         bottomPanel.add(analyzeButton);
@@ -169,22 +155,16 @@ public class CloneConfigDialog extends JDialog implements ICloneConfigDialog {
     public void setButtonAction(String button, Action action) {
         if (button.equals(AZIONE_TESTA_CONFIG)) {
             analyzeButton.setAction(action);
+        } else if (button.equals(AZIONE_SALVA)) {
+            saveButton.setAction(action);
         }
-
     }
 
     private JPanel createSimpleAnalyzerConfigPanel() {
         JPanel panel = new JPanel(new GridLayout(2, 1, 10, 10));
 
         // Checkbox per levels (EventSeverity)
-        JPanel levelsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        levelsPanel.setBorder(BorderFactory.createTitledBorder("Severità che generano sempre alert"));
-        severityCheckBoxMapSimple.clear();
-        for (EventSeverity sev : EventSeverity.values()) {
-            JCheckBox cb = new JCheckBox(sev.name());
-            severityCheckBoxMapSimple.put(sev, cb);
-            levelsPanel.add(cb);
-        }
+        JPanel levelsPanel = createSeverityCheckBox(severityCheckBoxMapSimple);
 
         // Checkbox per groups (EventGroup)
         JPanel groupsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -202,6 +182,18 @@ public class CloneConfigDialog extends JDialog implements ICloneConfigDialog {
         return panel;
     }
 
+    private JPanel createSeverityCheckBox(Map<EventSeverity, JCheckBox> severityCheckBoxMapSimple) {
+        JPanel levelsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        levelsPanel.setBorder(BorderFactory.createTitledBorder("Severità che generano sempre alert"));
+        severityCheckBoxMapSimple.clear();
+        for (EventSeverity sev : EventSeverity.values()) {
+            JCheckBox cb = new JCheckBox(sev.name());
+            severityCheckBoxMapSimple.put(sev, cb);
+            levelsPanel.add(cb);
+        }
+        return levelsPanel;
+    }
+
     public void resetAlertTable() {
         alertTableModel.setRowCount(0);
         alertTableModel.fireTableRowsUpdated(0, alertTableModel.getRowCount() - 1);
@@ -212,14 +204,7 @@ public class CloneConfigDialog extends JDialog implements ICloneConfigDialog {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
         // Checkbox per levels (EventSeverity)
-        JPanel levelsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        levelsPanel.setBorder(BorderFactory.createTitledBorder("Severità che generano sempre alert"));
-        severityCheckBoxMapAdvanced.clear();
-        for (EventSeverity sev : EventSeverity.values()) {
-            JCheckBox cb = new JCheckBox(sev.name());
-            severityCheckBoxMapAdvanced.put(sev, cb);
-            levelsPanel.add(cb);
-        }
+        JPanel levelsPanel = createSeverityCheckBox(severityCheckBoxMapAdvanced);
 
         // Soglie per ogni EventType - divise in 2 colonne
         JPanel thresholdsOuterPanel = new JPanel(new BorderLayout());
@@ -236,7 +221,7 @@ public class CloneConfigDialog extends JDialog implements ICloneConfigDialog {
         for (int i = 0; i < types.length; i++) {
             JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
             row.add(new JLabel(types[i].name()));
-            JTextField tf = new JTextField(5);
+            JTextField tf = ViewUtil.createThresholdTextField();
             thresholdFieldMap.put(types[i], tf);
             row.add(tf);
             if (i < mid) {
@@ -260,19 +245,11 @@ public class CloneConfigDialog extends JDialog implements ICloneConfigDialog {
 
     public AnalysisRules getUpdatedRules() {
         String selectedAnalyzer = (String) analyzerTypeCombo.getSelectedItem();
-        log.debug("**** selectedAnalyzer: {}", selectedAnalyzer);
-        if (EAnalysisType.ADVANCED.getDescription().equals(selectedAnalyzer)) {
-            log.debug("**** selectedAnalyzer");
-            return getAdvancedRules();
-        } else if (EAnalysisType.SIMPLE.getDescription().equals(selectedAnalyzer)) {
-            log.debug("**** simple rules");
-            return getSimpleRules();
-        }
-        return null;
-    }
-
-    public String getSelectedAnalyzer() {
-        return (String) analyzerTypeCombo.getSelectedItem();
+        EAnalysisType type = getAnalysisTypeByDescription(selectedAnalyzer);
+        return switch (type) {
+            case ADVANCED -> getAdvancedRules();
+            case SIMPLE -> getSimpleRules();
+        };
     }
 
     private AnalysisRules getSimpleRules() {
@@ -332,23 +309,23 @@ public class CloneConfigDialog extends JDialog implements ICloneConfigDialog {
 
     @Override
     public void updateConfigPanelsFromRules() {
-        log.debug("--- {}", mainAnalyzer.getAnalysisType().getDescription());
+        alertTableModel.setRowCount(0);
         analyzerTypeCombo.setSelectedItem(mainAnalyzer.getAnalysisType().getDescription());
-        log.debug("!!! {} - {}", analyzerTypeCombo, analyzerTypeCombo.getSelectedItem());
-        if (mainAnalyzer instanceof SimpleAnalyzer) {
-            analyzerConfigPanel.add(simplePanel, EAnalysisType.SIMPLE.getDescription());
-            analyzerConfigPanel.add(advancedPanel, EAnalysisType.ADVANCED.getDescription());
-        } else {
-            analyzerConfigPanel.add(advancedPanel, EAnalysisType.ADVANCED.getDescription());
-            analyzerConfigPanel.add(simplePanel, EAnalysisType.SIMPLE.getDescription());
-        }
         configPanel.add(analyzerConfigPanel, BorderLayout.CENTER);
         AnalysisRules simpleRules = simpleAnalyzer.getRules();
         AnalysisRules advancedRules = advancedAnalyzer.getRules();
-        if (this.mainAnalyzer instanceof SimpleAnalyzer) {
-            simpleRules = this.mainAnalyzer.getRules();
-        } else {
-            advancedRules = this.mainAnalyzer.getRules();
+        EAnalysisType type = getAnalysisTypeByDescription(mainAnalyzer.getAnalysisType().getDescription());
+        switch (type) {
+            case SIMPLE -> {
+                analyzerConfigPanel.add(simplePanel, EAnalysisType.SIMPLE.getDescription());
+                analyzerConfigPanel.add(advancedPanel, EAnalysisType.ADVANCED.getDescription());
+                simpleRules = this.mainAnalyzer.getRules();
+            }
+            case ADVANCED -> {
+                analyzerConfigPanel.add(advancedPanel, EAnalysisType.ADVANCED.getDescription());
+                analyzerConfigPanel.add(simplePanel, EAnalysisType.SIMPLE.getDescription());
+                advancedRules = this.mainAnalyzer.getRules();
+            }
         }
         // SimpleAnalyzer
         Set<EventSeverity> simpleLevels = simpleRules.getLevels();
@@ -374,88 +351,6 @@ public class CloneConfigDialog extends JDialog implements ICloneConfigDialog {
         }
     }
 
-//    private void runCloneAnalysis() {
-//        alertTableModel.setRowCount(0);
-//
-//        String selectedAnalyzer = (String) analyzerTypeCombo.getSelectedItem();
-//        AnalysisRules rules;
-//        IEventAnalyzer analyzer;
-//        if (EAnalysisType.ADVANCED.getDescription().equals(selectedAnalyzer)) {
-//            // Clona e aggiorna le regole
-//            rules = advancedAnalyzer.getRules().clone();
-//
-//            // Aggiorna levels in base ai checkbox
-//            Set<EventSeverity> selectedLevels = severityCheckBoxMapAdvanced.entrySet().stream()
-//                    .filter(e -> e.getValue().isSelected())
-//                    .map(Map.Entry::getKey)
-//                    .collect(Collectors.toSet());
-//            rules.setLevels(selectedLevels);
-//
-//            // Aggiorna soglie in base ai campi
-//            Map<EventType, Integer> thresholds = new HashMap<>();
-//            for (Map.Entry<EventType, JTextField> entry : thresholdFieldMap.entrySet()) {
-//                try {
-//                    int threshold = Integer.parseInt(entry.getValue().getText());
-//                    thresholds.put(entry.getKey(), threshold);
-//                } catch (NumberFormatException ex) {
-//                    thresholds.put(entry.getKey(), Integer.MAX_VALUE);
-//                }
-//            }
-//            rules.setEventThresholds(thresholds);
-//
-//            analyzer = advancedAnalyzer.clone();
-//            analyzer.updateRules(rules);
-//        } else {
-//            rules = simpleAnalyzer.getRules();
-//
-//            // Aggiorna levels
-//            Set<EventSeverity> selectedLevels = severityCheckBoxMapSimple.entrySet().stream()
-//                    .filter(e -> e.getValue().isSelected())
-//                    .map(Map.Entry::getKey)
-//                    .collect(Collectors.toSet());
-//            rules.setLevels(selectedLevels);
-//
-//            // Aggiorna groups
-//            Set<EventGroup> selectedGroups = groupCheckBoxMapSimple.entrySet().stream()
-//                    .filter(e -> e.getValue().isSelected())
-//                    .map(Map.Entry::getKey)
-//                    .collect(Collectors.toSet());
-//            rules.setGroups(selectedGroups);
-//
-//            analyzer = simpleAnalyzer.clone();
-//            analyzer.updateRules(rules);
-//        }
-//
-//        log.debug(" Analyzer: {}", analyzer.getAnalyzerName());
-//        // Svuota anche gli allarmi precedenti nell'AlertManager dell'analyzer
-//        analyzer.getManager().clearAll();
-//
-//        // Analizza eventi
-//        AnalysisContextHolder.setModalAnalysis(true);
-//        try {
-//            for (Event event : events) {
-//                analyzer.analyzeEvent(event.clone());
-//            }
-//        } finally {
-//            AnalysisContextHolder.setModalAnalysis(false);
-//        }
-//
-//        // Recupera e mostra Alert
-//        List<Alert> alerts = analyzer.getManager().getActiveAlerts();
-//        mainAnalyzer = analyzer;
-//        log.debug("ci sono {} allarmi", alerts.size());
-//        for (Alert alert : alerts) {
-//            alertTableModel.addRow(new Object[]{
-//                    alert.getAlertId(),
-//                    alert.getTimestamp().format(ViewUtil.getFormatter()),
-//                    alert.getEventSeverity().toString(),
-//                    alert.getAlertType(),
-//                    alert.getStatus().toString()
-//            });
-//        }
-//        saveButton.setEnabled(true);
-//    }
-
     @Override
     public void initLogArea() {
         for (Event event : events) {
@@ -463,12 +358,9 @@ public class CloneConfigDialog extends JDialog implements ICloneConfigDialog {
         }
     }
 
-    private void saveCurrentConfigToMainAnalyzer() {
-
-        log.info("Analyzer: {} - {}", mainAnalyzer.getAnalyzerName(), mainAnalyzer.getRules().toString());
-        Applicazione.getInstance().getComponentInstance(AnalysisContext.class).setStrategy(mainAnalyzer);
-        JOptionPane.showMessageDialog(this, "Configurazione salvata e applicata all'analyzer principale!");
-        saveButton.setEnabled(false);
+    @Override
+    public void enabledSaveButton() {
+        saveButton.setEnabled(true);
     }
 
 }

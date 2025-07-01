@@ -51,7 +51,4 @@ public class Vista extends JFrame implements IVista {
         menuFile.add(voceEsci);
     }
 
-    public void errorDialog(String messaggio) {
-        JOptionPane.showMessageDialog(this, messaggio, "ERRORE", JOptionPane.ERROR_MESSAGE);
-    }
 }

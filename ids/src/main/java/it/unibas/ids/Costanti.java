@@ -8,7 +8,6 @@ public class Costanti {
     public static final String AZIONE_CLONE = CloneConfigAction.class.getName();
     public static final String AZIONE_STOP = StopSimulationAction.class.getName();
     public static final String AZIONE_TESTA_CONFIG = TestConfigAction.class.getName();
+    public static final String AZIONE_SALVA = SaveConfigAction.class.getName();
 
-    public static final String EVENTI_CLONATI = "eventiClonati";
-    public static final String STRATEGIA_CORRENTE = "strategiaCorrente";
 }

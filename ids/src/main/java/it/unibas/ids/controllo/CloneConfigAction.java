@@ -1,7 +1,6 @@
 package it.unibas.ids.controllo;
 
 import com.google.inject.Inject;
-import it.unibas.common.util.AnalysisContextHolder;
 import it.unibas.ids.Applicazione;
 import it.unibas.ids.Costanti;
 import it.unibas.ids.analyzer.AnalysisContext;
@@ -34,9 +33,9 @@ public class CloneConfigAction extends AbstractAction {
     public void actionPerformed(ActionEvent evt) {
         log.info("Cloning current configuration...");
         Controllo controllo = Applicazione.getInstance().getComponentInstance(Controllo.class);
-        //AnalysisContextHolder.setModalAnalysis(true);
         dialog.showDialog(collector.getAllEvents(), analysisContext.getCurrentStrategy());
         dialog.setButtonAction(Costanti.AZIONE_TESTA_CONFIG, controllo.getAction(Costanti.AZIONE_TESTA_CONFIG));
+        dialog.setButtonAction(Costanti.AZIONE_SALVA, controllo.getAction(Costanti.AZIONE_SALVA));
         dialog.updateConfigPanelsFromRules();
         dialog.initLogArea();
         dialog.showMe(true);

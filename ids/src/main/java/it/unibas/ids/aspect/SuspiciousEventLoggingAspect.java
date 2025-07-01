@@ -48,12 +48,11 @@ public class SuspiciousEventLoggingAspect {
         Alert alert = (Alert) joinPoint.getArgs()[0];
         if (mainView != null && !AnalysisContextHolder.isModalAnalysis()) {
             mainView.addAlert(alert);
-        }
-        if (alert.getEventSeverity() == EventSeverity.CRITICAL) {
-            log.error("🚨🚨 CRITICAL ALERT TRIGGERED 🚨🚨");
-
-            // Invia email mock
-            emailService.sendCriticalAlert(alert);
+            if (alert.getEventSeverity() == EventSeverity.CRITICAL) {
+                log.error("🚨🚨 CRITICAL ALERT TRIGGERED 🚨🚨");
+                // Invia email mock
+                emailService.sendCriticalAlert(alert);
+            }
         }
     }
 

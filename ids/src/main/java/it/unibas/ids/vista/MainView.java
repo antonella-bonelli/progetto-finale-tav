@@ -4,7 +4,6 @@ import it.unibas.common.model.Event;
 import it.unibas.common.model.EventGroup;
 import it.unibas.common.model.EventSeverity;
 import it.unibas.ids.model.Alert;
-import it.unibas.ids.model.Modello;
 import it.unibas.ids.util.ViewUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -16,27 +15,25 @@ import java.awt.*;
 
 import static it.unibas.ids.Costanti.AZIONE_START;
 import static it.unibas.ids.Costanti.AZIONE_STOP;
+import static it.unibas.ids.util.ViewUtil.getLeftPanel;
+import static it.unibas.ids.util.ViewUtil.getLogArea;
 
 @Slf4j
 @Singleton
 public class MainView extends JPanel implements IMainView {
-    private Modello model;
 
-    private JButton startButton = new JButton("Start");
-    private JButton stopButton = new JButton("Stop");
+    private final JButton startButton = new JButton("Start");
+    private final JButton stopButton = new JButton("Stop");
 
     private JTable alertTable;
     private DefaultTableModel alertTableModel;
     private JTextArea eventLogArea;
-    private JLabel statusLabel;
-    private JLabel eventCountLabel;
 
     private JComboBox<String> typeFilterCombo;
     private JComboBox<String> severityFilterCombo;
 
     @Inject()
-    private MainView(Modello model) {
-        this.model = model;
+    private MainView() {
         this.init();
     }
 
@@ -73,15 +70,8 @@ public class MainView extends JPanel implements IMainView {
         JSplitPane mainSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
         // === SINISTRA: Log Eventi ===
-        JPanel leftPanel = new JPanel(new BorderLayout());
-        leftPanel.setBorder(BorderFactory.createTitledBorder("📋 Event Log"));
-
-        // Log area
-        eventLogArea = new JTextArea();
-        eventLogArea.setEditable(false);
-        eventLogArea.setBackground(Color.BLACK);
-        eventLogArea.setForeground(Color.GREEN);
-        eventLogArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 11));
+        JPanel leftPanel = getLeftPanel();
+        eventLogArea = getLogArea();
 
         leftPanel.add(new JScrollPane(eventLogArea), BorderLayout.CENTER);
         leftPanel.add(createFilterPanel(), BorderLayout.NORTH);
@@ -100,11 +90,7 @@ public class MainView extends JPanel implements IMainView {
 
         alertPanel.add(new JScrollPane(alertTable), BorderLayout.CENTER);
 
-        // Statistiche
-        JPanel statsPanel = createStatsPanel();
-
         rightPanel.add(alertPanel, BorderLayout.CENTER);
-        //rightPanel.add(statsPanel, BorderLayout.SOUTH);
 
         mainSplit.setLeftComponent(leftPanel);
         mainSplit.setRightComponent(rightPanel);
@@ -125,26 +111,6 @@ public class MainView extends JPanel implements IMainView {
         filterPanel.add(severityFilterCombo);
 
         return filterPanel;
-    }
-
-    private JPanel createStatsPanel() {
-        JPanel statsPanel = new JPanel(new GridLayout(2, 2, 5, 5));
-        statsPanel.setBorder(BorderFactory.createTitledBorder("📊 Statistics"));
-
-        eventCountLabel = new JLabel("Eventi: 0");
-        JLabel alertCountLabel = new JLabel("Allarmi: 0");
-        JLabel threatLevelLabel = new JLabel("Threat Level: LOW");
-
-        JProgressBar systemLoad = new JProgressBar(0, 100);
-        systemLoad.setStringPainted(true);
-        systemLoad.setString("System Load: 0%");
-
-        statsPanel.add(eventCountLabel);
-        statsPanel.add(alertCountLabel);
-        statsPanel.add(threatLevelLabel);
-        statsPanel.add(systemLoad);
-
-        return statsPanel;
     }
 
     public void setButtonAction(String button, Action action) {
