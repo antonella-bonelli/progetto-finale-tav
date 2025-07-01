@@ -2,6 +2,12 @@
 
 Sistema di rilevamento intrusioni con simulatore integrato e interfaccia grafica.
 
+## Architettura
+
+Il sistema è composto da tre moduli principali:
+- **simulator**: Genera eventi di sicurezza simulati
+- **ids**: Sistema di rilevamento intrusioni con interfaccia grafica
+- **common**: Modelli condivisi e interfacce
 ## Setup
 
 1. **Configurazione iniziale**
@@ -57,6 +63,16 @@ Se non ci sono eventi catturati, la dialog mostrerà una log area vuota
 Permette di testare diverse configurazioni senza impattare il sistema principale
 Gli eventi clonati sono isolati e non influenzano l'analisi in tempo reale
 
+## Test
+
+```bash
+# Esegui tutti i test
+./gradlew test
+
+# Test specifici per modulo
+./gradlew :simulator:test
+./gradlew :ids:test
+```
 ## Requisiti
 
 - Java 17+
